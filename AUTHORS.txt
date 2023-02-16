@@ -1,4 +1,3 @@
-
-Dimitri Pierre-Louis: dimitripl6@techexchange.in
-Nasir Barnes: nabarnes43@techexchange.in
-Mary Nkata: mary_elei_nkata@techexchange.in
+Dimitri Pierre-Louis <dimitripl6@techexchange.in>
+Nasir Barnes <nabarnes43@techexchange.in>
+Mary Nkata <mary_elei_nkata@techexchange.in>
