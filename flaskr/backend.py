@@ -2,19 +2,35 @@
 from google.cloud import storage
 import hashlib
 
+BUCKET_NAME = "sdswiki_contents"
+
 class Backend:
 
     def __init__(self):
         self.storage_client = storage.Client()
         
     def get_wiki_page(self, name):
-        pass
 
+        storage_client = storage.Client()
+        bucket = storage_client.bucket(BUCKET_NAME)
+        blob = bucket.blob(name)
+        
+        with blob.open() as f:
+            return f.read()
+
+    #Gets the names of all pages from the content bucket.
     def get_all_page_names(self):
-        pass
+        pages_names_list = []
+
+        storage_client = storage.Client()
+        
+        blobs = storage_client.list_blobs(BUCKET_NAME)
+
+        # Note: The call returns a response only when the iterator is consumed.
+        for blob in blobs:
+            pages_names_list.append(blob.name)
 
     def upload(self, data, destination_blob_name):
-        # does this create a new blob if the requested blob does not exist?
         bucket = self.storage_client.bucket('sdswiki_contents')
         blob = bucket.blob(destination_blob_name)
 
@@ -32,7 +48,7 @@ class Backend:
                 return f"user {name} already exists in the database. Please sign in." 
                 # or I could have it call the sign in method at once?
 
-        blob = bucket.blob(name) # im assuming that this creates a blob with the new name
+        blob = bucket.blob(name) 
 
         with blob.open("w") as user:
             password = password.encode()
@@ -46,3 +62,10 @@ class Backend:
 
     def get_image(self):
         pass
+
+
+
+backend = Backend()
+
+print(backend.get_wiki_page("page_one.txt"))
+print(backend.get_all_page_names())
