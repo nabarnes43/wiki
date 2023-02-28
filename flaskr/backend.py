@@ -57,13 +57,20 @@ class Backend:
 
         return f"user {name} successfully created."
 
-    def sign_in(self):
-        pass
+    def sign_in(self,name, secure_password):
+        blobs = self.storage_client.list_blobs('sdsusers_passwords')
 
-    def get_image(self):
-        pass
+        for blob in blobs: 
+            if blob.secure_password == secure_password:
+                return f"User {name} login successful"
+        return f"Invalid password entered for user {name}"
 
+    def get_image(self, name):
+        bucket = self.storage_client.bucket('sdswiki_contents')
+        blob = bucket.get_blob(name)
 
+        with blob.open() as f:
+            return f.read()
 
 backend = Backend()
 
