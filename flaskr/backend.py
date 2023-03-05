@@ -2,6 +2,7 @@
 from google.cloud import storage
 import hashlib
 
+
 BUCKET_NAME = "sdswiki_contents"
 
 class Backend:
@@ -29,6 +30,7 @@ class Backend:
         # Note: The call returns a response only when the iterator is consumed.
         for blob in blobs:
             pages_names_list.append(blob.name)
+        #return the list
 
     def upload(self, data, destination_blob_name):
         bucket = self.storage_client.bucket('sdswiki_contents')
@@ -57,7 +59,7 @@ class Backend:
 
         return f"user {name} successfully created."
 
-    def sign_in(self,name, secure_password):
+    def sign_in(self, username, secure_password):
         blobs = self.storage_client.list_blobs('sdsusers_passwords')
 
         for blob in blobs: 
@@ -69,8 +71,7 @@ class Backend:
         bucket = self.storage_client.bucket('sdswiki_contents')
         blob = bucket.get_blob(name)
 
-        with blob.open() as f:
-            return f.read()
+        
 
 backend = Backend()
 
