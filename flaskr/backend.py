@@ -19,7 +19,7 @@ class Backend:
             return f.read()
 
     #Gets the names of all pages from the content bucket.
-    def get_all_page_names(self):
+    def get_all_page_names(self): #does this need to return a value? or pages names list saved as a class variable so i can access it later?
         pages_names_list = []
 
         storage_client = storage.Client()
@@ -29,6 +29,8 @@ class Backend:
         # Note: The call returns a response only when the iterator is consumed.
         for blob in blobs:
             pages_names_list.append(blob.name)
+        
+        return pages_names_list
 
     def upload(self, data, destination_blob_name):
         bucket = self.storage_client.bucket('sdswiki_contents')
@@ -39,25 +41,25 @@ class Backend:
         return f"{destination_blob_name} with contents {data} uploaded to sdswiki_contents."
 
     def sign_up(self, name, password):
-        #this assumes that we've saved the different usernames as blobs with the hashed password inside.
+        #this saves the username as a blob with the hashed password inside.
         bucket = self.storage_client.bucket('sdsusers_passwords')
         blobs = self.storage_client.list_blobs('sdsusers_passwords')
 
         for blob in blobs:
             if blob.name == name:
                 return f"user {name} already exists in the database. Please sign in." 
-                # or I could have it call the sign in method at once?
 
         blob = bucket.blob(name) 
 
         with blob.open("w") as user:
             password = password.encode()
-            secure_password = hashlib.sha3_256(password).hexdigest()
+            salty_password = f"{name}{password}"
+            secure_password = hashlib.sha3_256(salty_password).hexdigest()
             user.write(secure_password)
 
         return f"user {name} successfully created."
 
-    def sign_in(self,name, secure_password):
+    def sign_in(self, name, secure_password):
         blobs = self.storage_client.list_blobs('sdsusers_passwords')
 
         for blob in blobs: 
@@ -73,6 +75,3 @@ class Backend:
             return f.read()
 
 backend = Backend()
-
-print(backend.get_wiki_page("page_one.txt"))
-print(backend.get_all_page_names())
