@@ -54,7 +54,7 @@ class Backend:
 
         with blob.open("w") as user:
             password = password.encode()
-            salty_password = f"{name}{password}"
+            salty_password = f"{name}{password}".encode()
             secure_password = hashlib.sha3_256(salty_password).hexdigest()
             user.write(secure_password)
 
@@ -69,9 +69,12 @@ class Backend:
         return f"Invalid password entered for user {name}"
 
     def get_image(self, name):
-        bucket = self.storage_client.bucket('sdswiki_contents')
-        blob = bucket.get_blob(name)
+        bucket = self.storage_client.bucket('sdsimages')
+        blob = bucket.blob(name)
 
-        
+        with blob.open("rb") as f:
+            return f.read()
+
 
 backend = Backend()
+print(backend.get_image("Nasir.Barnes.Headshot.JPG"))

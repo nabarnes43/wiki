@@ -1,5 +1,5 @@
 from flaskr import pages
-
+from flaskr import backend
 from flask import Flask
 
 import logging
@@ -30,3 +30,4 @@ def create_app(test_config=None):
     # and additional endpoints.
     pages.make_endpoints(app)
     return app
+

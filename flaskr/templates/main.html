@@ -2,14 +2,27 @@
 <html>
 
 <head>
-    <head>
-        <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
-        <title>Wikipedia!</title>
-    </head>
+     <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
+    <title>Wikipedia!</title>
+    
+    {% block page_name %}
+    <h1>Wikipedia!</h1>
+    {% endblock %}
 </head>
 
 <body>
     <!-- TODO(Project 1): Implement routes. -->
+    {% block content %}
+    <a href="/">Home</a>
+
+    <a href="/about">About</a>
+
+    <a href="/signup">Sign Up</a>
+    {% endblock %}
+
+    </br>
+    </br>
+
     <div>       
         <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
         Hey there, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
