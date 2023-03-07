@@ -84,5 +84,4 @@ class Backend:
 
 
 backend = Backend()
-print(backend.get_image("Nasir.Barnes.Headshot.JPG"))
 print(backend.upload("trial sturves", 'testing uploads.txt'))
