@@ -1,4 +1,5 @@
 from flask import render_template
+from .backend import Backend
 
 
 def make_endpoints(app):
@@ -10,3 +11,19 @@ def make_endpoints(app):
         return render_template("main.html")
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
+
+    @app.route("/pages", methods=['GET'])
+    def pages():
+        backend = Backend()
+        all_pages = backend.get_all_page_names()
+
+        return render_template('main.html', page_titles = all_pages)
+
+    @app.route("/pages/<page_title>", methods=['GET'])
+    def page_details(page_title):
+        backend = Backend()
+        page = backend.get_wiki_page(page_title)
+
+        return render_template('main.html', page=page)
+
+    

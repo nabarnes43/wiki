@@ -14,6 +14,21 @@
         <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
         Hey there, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
     </div>
+
+    <!-- <title>Pages</title> -->
+    <div>       
+        <a href = "/pages">Pages</a>
+
+        <ul>
+            {% for title in page_titles %}
+            <li><a href = "/pages/{{title}}">{{title}}</a></li>
+            {% endfor %}
+            {{page}}
+        </ul>
+        
+    </div>
+
+
 </body>
 
 </html>
