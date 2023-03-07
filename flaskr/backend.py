@@ -57,8 +57,7 @@ class Backend:
         blob = bucket.blob(name) 
 
         with blob.open("w") as user:
-            password = password.encode()
-            salty_password = f"{name}{password}"
+            salty_password = f"{name}{password}".encode
             secure_password = hashlib.sha3_256(salty_password).hexdigest()
             user.write(secure_password)
 
@@ -69,9 +68,8 @@ class Backend:
 
         for blob in blobs: 
             if blob.secure_password == secure_password:
-                return f"User {name} login successful"
-        return f"Invalid password entered for user {name}"
-
+                return f"User {username} login successful"
+        return f"Invalid password entered for user {username}"
 
     def get_image(self, name):
         bucket = self.storage_client.bucket('sdsimages')

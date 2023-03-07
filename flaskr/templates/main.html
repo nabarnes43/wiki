@@ -15,10 +15,13 @@
         Hey there, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
     </div>
 
-    <!-- <title>Pages</title> -->
+    <title>Pages</title>
     <div>       
+        <a href = "/home">Home</a>
         <a href = "/pages">Pages</a>
 
+            <h3>Pages contained in this Wiki</h3>
+        
         <ul>
             {% for title in page_titles %}
             <li><a href = "/pages/{{title}}">{{title}}</a></li>
