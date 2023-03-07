@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+
+{% block page_name %}
+<h1>Upload a doc to the Wiki</h1>
+{% endblock %}
+
+{% block content %}
+
+    <form method="post" action="/upload" enctype="multipart/form-data">
+        <input type="text" name= "destination_blob" placeholder="Wikiname"/>
+        <input type="file" name="data_file" placeholder="Choose File" accept = '.txt'/>
+        <input type="submit" value="Upload"/>
+    </form></br>
+
+{% endblock %}

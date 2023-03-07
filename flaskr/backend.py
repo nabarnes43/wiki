@@ -1,7 +1,6 @@
 # TODO(Project 1): Implement Backend according to the requirements.
 from google.cloud import storage
 import hashlib
-from PIL import Image
 import io
 
 
@@ -21,7 +20,6 @@ class Backend:
         with blob.open() as f:
             return f.read()
 
-        "Nasir.Barnes.Headshot.JPG"
 
     #Gets the names of all pages from the content bucket.
     def get_all_page_names(self): #does this need to return a value? or pages names list saved as a class variable so i can access it later?
@@ -77,11 +75,6 @@ class Backend:
 
         with blob.open("rb") as f:
             img = f.read()
-
-        image = Image.open(io.BytesIO(img))
-        return image
-
         
 
-backend = Backend()
-print(backend.upload("trial sturves", 'testing uploads.txt'))
+        return img
