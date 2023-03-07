@@ -1,7 +1,8 @@
 # TODO(Project 1): Implement Backend according to the requirements.
 from google.cloud import storage
 import hashlib
-
+import io
+from PIL import Image
 
 BUCKET_NAME = "sdswiki_contents"
 
@@ -69,14 +70,19 @@ class Backend:
 
         with blob.open("r") as username:
             if hashed == username.read():
-                return f"{username} logged in successfully."
-            return "Incorrect password entered for {username}"
+                return True
+            return False
 
     def get_image(self, name):
-        bucket = self.storage_client.bucket('sdswiki_contents')
+        bucket = self.storage_client.bucket('sdsimages')
         blob = bucket.blob(name)
 
-        with blob.open("rb") as f:
-            return f.read()
+        #with blob.open("rb") as f:
+            #img = f.read()
+
+        #image = Image.open(io.BytesIO(img))
+        with Image(blob) as img:
+         return img.show()
 
 backend = Backend()
+print(backend.get_image("Nasir.Barnes.Headshot.JPG"))
