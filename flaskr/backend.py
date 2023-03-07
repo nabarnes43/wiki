@@ -78,9 +78,9 @@ class Backend:
 
         with blob.open("rb") as f:
             img = f.read()
+        
 
-        image = Image.open(io.BytesIO(img))
-        return image
+        return img
 
 
 backend = Backend()
