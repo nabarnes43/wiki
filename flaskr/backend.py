@@ -2,7 +2,10 @@
 from google.cloud import storage
 import hashlib
 import io
+from flask import Flask, jsonify, request
 from PIL import Image
+import base64
+
 
 BUCKET_NAME = "sdswiki_contents"
 
@@ -19,6 +22,8 @@ class Backend:
         
         with blob.open() as f:
             return f.read()
+
+        "Nasir.Barnes.Headshot.JPG"
 
     #Gets the names of all pages from the content bucket.
     def get_all_page_names(self): #does this need to return a value? or pages names list saved as a class variable so i can access it later?
@@ -55,7 +60,7 @@ class Backend:
 
         with blob.open("w") as user:
             password = password.encode()
-            salty_password = f"{name}{password}"
+            salty_password = f"{name}{password}".encode()
             secure_password = hashlib.sha3_256(salty_password).hexdigest()
             user.write(secure_password)
 
@@ -65,24 +70,26 @@ class Backend:
         bucket = self.storage_client.bucket('sdsusers_passwords')
         blob = bucket.blob(username)
         password = password.encode()
-        salty_password = f"{username}{password}"
+        salty_password = f"{username}{password}".encode()
         hashed = hashlib.sha3_256(salty_password).hexdigest()
 
-        with blob.open("r") as username:
-            if hashed == username.read():
-                return True
+        try:        
+            with blob.open("r") as username:
+                secure_password = username.read()
+        except:
             return False
+        
+        if hashed == secure_password:
+            return True
+        return False
+
 
     def get_image(self, name):
         bucket = self.storage_client.bucket('sdsimages')
         blob = bucket.blob(name)
 
-        #with blob.open("rb") as f:
-            #img = f.read()
+        with blob.open("rb") as f:
+            img = f.read()
+        image = base64.b64encode(img).decode("utf-8")
+        return image
 
-        #image = Image.open(io.BytesIO(img))
-        with Image(blob) as img:
-         return img.show()
-
-backend = Backend()
-print(backend.get_image("Nasir.Barnes.Headshot.JPG"))

@@ -1,5 +1,5 @@
 from flaskr import pages
-
+from flaskr import backend
 from flask import Flask
 
 import logging
@@ -34,3 +34,4 @@ def create_app(test_config=None):
     pages.make_endpoints(app)
     login_manager.init_app(app)
     return app
+
