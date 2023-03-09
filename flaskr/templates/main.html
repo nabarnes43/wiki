@@ -7,6 +7,10 @@
     
     {% block page_name %}
     <h1>Wikipedia!</h1>
+    <div>       
+        Hey there, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
+    </div>
+    </br>
     {% endblock %}
 </head>
 
@@ -15,32 +19,16 @@
     {% block content %}
     <a href="/">Home</a>
 
+    <a href = "/pages">Pages</a>
+
     <a href="/about">About</a>
 
+    |
+
     <a href="/signup">Sign Up</a>
+
+    <a href="/upload">Upload</a> <!-- when sign in has been implamented, update this to show only after sign in -->
     {% endblock %}
-
-    </br>
-    </br>
-
-    <div>       
-        <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
-        Hey there, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
-    </div>
-
-    <!-- <title>Pages</title> -->
-    <div>       
-        <a href = "/pages">Pages</a>
-
-        <ul>
-            {% for title in page_titles %}
-            <li><a href = "/pages/{{title}}">{{title}}</a></li>
-            {% endfor %}
-            {{page}}
-        </ul>
-        
-    </div>
-
 
 </body>
 

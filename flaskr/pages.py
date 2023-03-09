@@ -44,16 +44,14 @@ def make_endpoints(app):
 
         username = str(request.form['Username'])
         password = str(request.form['Password'])
-        
 
         if  username == '' or  password == '':
-            return "Please enter a username and password." 
+            return "Please enter a username and password."
 
         print(username)
         print(password)
 
         backend.sign_up(username, password)
-
 
         return render_template("createaccount.html")
 
@@ -62,13 +60,24 @@ def make_endpoints(app):
         backend = Backend()
         all_pages = backend.get_all_page_names()
 
-        return render_template('main.html', page_titles = all_pages)
+        return render_template('pages.html', page_titles = all_pages)
 
     @app.route("/pages/<page_title>", methods=['GET'])
     def page_details(page_title):
         backend = Backend()
         page = backend.get_wiki_page(page_title)
 
-        return render_template('main.html', page=page)
+        return render_template('pages.html', page=page)
 
-    
+    @app.route("/upload", methods = ['GET', 'POST'])
+    def uploads():
+        if request.method == 'POST':
+            backend = Backend()
+            destination_blob = str(request.form['destination_blob'])
+            data_file = request.files['data_file']
+
+            data = data_file.read()
+            result = backend.upload(data, destination_blob)
+            return result
+
+        return render_template('upload.html')
