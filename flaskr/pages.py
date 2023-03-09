@@ -8,6 +8,7 @@ from flask import request
 from .backend import Backend
 from .user import User
 from .form import LoginForm
+from base64 import b64encode
 
 def make_endpoints(app, login_manager):
     # Flask uses the "app.route" decorator to call methods when users
@@ -24,10 +25,11 @@ def make_endpoints(app, login_manager):
         form = LoginForm()
         if form.validate_on_submit():
             user = User(form.username.data)
+            username = form.username.data
             status = backend.sign_in(form.username.data, form.password.data)
             if status:
                 login_user(user, remember = True)
-                return redirect(url_for('home'))
+                return render_template('main.html', name = username)
             elif status == False:
                 flash("An incorrect password was entered")
             else:
