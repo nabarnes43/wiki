@@ -50,9 +50,9 @@ def make_endpoints(app, login_manager):
     @app.route("/about")
     def about():
         backend = Backend()
-        nasir_img = b64encode(backend.get_image("Nasir.Barnes.Headshot.JPG")).decode("utf-8")
-        elei_img = b64encode(backend.get_image("Mary.Elei.Nkata.jpeg")).decode("utf-8")
-        dimitri_img = b64encode(backend.get_image("cat.jpg")).decode("utf-8")
+        nasir_img = backend.get_image("Nasir.Barnes.Headshot.JPG")
+        elei_img = backend.get_image("Mary.Elei.Nkata.jpeg")
+        dimitri_img = backend.get_image("Dimitri.Pierre-Louis.JPG")
 
         return render_template("about.html", nasir_img = nasir_img, elei_img = elei_img, dimitri_img = dimitri_img)
 
