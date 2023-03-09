@@ -2,8 +2,7 @@
 from google.cloud import storage
 import hashlib
 import io
-from flask import Flask, jsonify, request
-from PIL import Image
+from flask import Flask
 import base64
 
 
@@ -23,7 +22,6 @@ class Backend:
         with blob.open() as f:
             return f.read()
 
-        "Nasir.Barnes.Headshot.JPG"
 
     #Gets the names of all pages from the content bucket.
     def get_all_page_names(self): #does this need to return a value? or pages names list saved as a class variable so i can access it later?
@@ -59,8 +57,7 @@ class Backend:
         blob = bucket.blob(name) 
 
         with blob.open("w") as user:
-            password = password.encode()
-            salty_password = f"{name}{password}".encode()
+            salty_password = f"{name}{password}".encode
             secure_password = hashlib.sha3_256(salty_password).hexdigest()
             user.write(secure_password)
 
@@ -77,7 +74,7 @@ class Backend:
             with blob.open("r") as username:
                 secure_password = username.read()
         except:
-            return False
+            return "Username not found"
         
         if hashed == secure_password:
             return True

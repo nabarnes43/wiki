@@ -1,52 +1,37 @@
 <!DOCTYPE html>
 <html>
 
+    <a href="/">Home</a>
+
+    <a href = "/pages">Pages</a>
+
+    <a href="/signup">Sign Up</a>
+
+    <a href="/login">Log In</a>
+
+    <a href="/logout">Log Out</a>   
+
 <head>
      <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
     <title>Wikipedia!</title>
     
     {% block page_name %}
     <h1>Wikipedia!</h1>
+    <div>       
+        Hey there, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
+    </div>
+    </br>
     {% endblock %}
-</head>
+</head>  
 
 <body>
     <!-- TODO(Project 1): Implement routes. -->
     {% block content %}
-    <img src="data:;base64,{{ image }}"/>
     
-    <a href="/">Home</a>
-
-    <a href="/about">About</a>
-
-    <a href="/signup">Sign Up</a>
-
-    <a href="/login">Log In</a>
-
-    <a href="/logout">Log Out</a>    
     {% endblock %}
 
     </br>
     </br>
-
-    <div>       
-        <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
-        Hey there, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
-    </div>
-
-    <!-- <title>Pages</title> -->
-    <div>       
-        <a href = "/pages">Pages</a>
-
-        <ul>
-            {% for title in page_titles %}
-            <li><a href = "/pages/{{title}}">{{title}}</a></li>
-            {% endfor %}
-            {{page}}
-        </ul>
-        
-    </div>
-
 
 </body>
 

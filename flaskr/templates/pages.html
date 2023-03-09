@@ -1,0 +1,14 @@
+{% extends "main.html" %}
+
+{% block page_name %}
+<h3>Pages contained in this Wiki</h3>
+{% endblock %}
+
+{% block content %}
+<ul>
+    {% for title in page_titles %}
+    <li><a href = "/pages/{{title}}">{{title}}</a></li>
+    {% endfor %}
+    {{page}}
+</ul>
+{% endblock %}
