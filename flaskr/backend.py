@@ -22,6 +22,8 @@ class Backend:
         with blob.open() as f:
             return f.read()
 
+        #add error handling
+
 
     #Gets the names of all pages from the content bucket.
     def get_all_page_names(self): #does this need to return a value? or pages names list saved as a class variable so i can access it later?
