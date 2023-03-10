@@ -27,18 +27,21 @@ class Backend:
         except Exception as e:
             return f"Network error: {e}"
 
-
-    #Gets the names of all pages from the content bucket.
-    def get_all_page_names(self): #does this need to return a value? or pages names list saved as a class variable so i can access it later?
-        pages_names_list = []
+    def get_all_page_names(self):
+        try:
+            pages_names_list = []
+            blobs = self.storage_client.list_blobs("sdswiki_contents")
+            
+            if not blobs:
+                return "Error: No pages found in bucket."
+            
+            for blob in blobs:
+                pages_names_list.append(blob.name)
+                
+            return pages_names_list
         
-        blobs = self.storage_client.list_blobs("sdswiki_contents")
-
-        # Note: The call returns a response only when the iterator is consumed.
-        for blob in blobs:
-            pages_names_list.append(blob.name)
-        
-        return pages_names_list
+        except Exception as e:
+            return f"Network error: {e}"
 
     def upload(self, data, destination_blob_name):
         bucket = self.storage_client.bucket('sdswiki_contents')

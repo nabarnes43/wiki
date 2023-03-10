@@ -52,7 +52,43 @@ def test_get_wiki_page_network_error():
     result = backend.get_wiki_page(page_name)
     assert result == expected_error_message
 
-#Make test routes for get page lists:
+def test_get_all_page_names_success():
+    storage_client = MagicMock()
+
+    blob1 = MagicMock()
+    blob2 = MagicMock()
+    blob3 = MagicMock()
+
+    blob1.name = "blob1"
+    blob2.name = "blob2"
+    blob3.name = "blob3"
+
+    storage_client.list_blobs.return_value = [blob1, blob2, blob3]
+    backend = Backend(storage_client)
+    expected_result = ["blob1", "blob2", "blob3"]
+    result = backend.get_all_page_names()
+    assert result == expected_result
+
+def test_get_all_page_names_not_found():
+    storage_client = MagicMock()
+    storage_client.list_blobs.return_value = []
+
+    backend = Backend(storage_client)
+
+    expected_result = "Error: No pages found in bucket."
+    result = backend.get_all_page_names()
+    assert result == expected_result
+
+
+def test_get_all_page_names_network_error():
+    storage_client = MagicMock()
+    storage_client.list_blobs.side_effect = Exception("Network error")
+
+    backend = Backend(storage_client)
+
+    expected_error_message = 'Network error: Network error'
+    result = backend.get_all_page_names()
+    assert result == expected_error_message
 
 
 def test_unsuccessful_upload():
