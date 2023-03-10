@@ -15,6 +15,8 @@ def make_endpoints(app, login_manager):
     @app.route("/")
     def home():
         backend =  Backend()
+        if current_user.is_authenticated:  
+            return render_template("main.html", name = current_user.name)
         return render_template("main.html")
 
     # TODO(Project 1): Implement additional routes according to the project requirements.
@@ -29,7 +31,7 @@ def make_endpoints(app, login_manager):
             status = backend.sign_in(form.username.data, form.password.data)
             if status:
                 login_user(user, remember = True)
-                return render_template('main.html', name = username)
+                return render_template('main.html', name = current_user.name)
             elif status == False:
                 flash("An incorrect password was entered")
             else:
@@ -53,7 +55,7 @@ def make_endpoints(app, login_manager):
         nasir_img = backend.get_image("Nasir.Barnes.Headshot.JPG")
         elei_img = backend.get_image("Mary.Elei.Nkata.jpeg")
         dimitri_img = backend.get_image("Dimitri.Pierre-Louis.JPG")
-
+        
         return render_template("about.html", nasir_img = nasir_img, elei_img = elei_img, dimitri_img = dimitri_img)
 
     @app.route("/signup")
