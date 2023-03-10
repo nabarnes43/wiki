@@ -18,7 +18,6 @@ def client(app):
 # TODO(Checkpoint (groups of 4 only) Requirement 4): Change test to
 # match the changes made in the other Checkpoint Requirements.
 def test_home_page(client):
-    # pass
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"<title>Wikipedia!</title>" in resp.data
@@ -35,8 +34,18 @@ def test_about_page(client):
     assert b"<h1>About This Wiki</h1>" in resp.data
     assert b"<h3>Your Authors</h3>" in resp.data
 
+def test_pages_list(client):
+    resp = client.get("/pages")
+    assert resp.status_code == 200
 
-# def signup
+def test_specific_page(client):
+    resp = client.get("/pages/testing uploads.txt")
+    assert resp.status_code == 200
+
+def test_upload(client):
+    resp = client.get("/upload")
+    assert resp.status_code == 200
+
 
 
 
