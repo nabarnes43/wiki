@@ -25,8 +25,6 @@ def test_home_page(client):
     # assert b"<a href=\"/signup\">Sign Up</a>" in resp.data
     # assert b"Hey there, thanks for using Wikipedia!" in resp.data
 
-# TODO(Project 1): Write tests for other routes.
-
 def test_about_page(client):
     resp = client.get("/about")
     assert resp.status_code == 200
@@ -90,14 +88,20 @@ def test_create_account_exception(client, monkeypatch):
     assert response.status_code == 200
     assert b'Account creation failed: Test exception' in response.data
 
+def test_about_page(client):
+    resp = client.get("/about")
+    assert resp.status_code == 200
+    assert b"<h1>About This Wiki</h1>" in resp.data
+    assert b"<h3>Your Authors</h3>" in resp.data
 
+def test_pages_list(client):
+    resp = client.get("/pages")
+    assert resp.status_code == 200
 
+def test_specific_page(client):
+    resp = client.get("/pages/testing uploads.txt")
+    assert resp.status_code == 200
 
-
-
-
-
-
-
-
-
+def test_upload(client):
+    resp = client.get("/upload")
+    assert resp.status_code == 200
