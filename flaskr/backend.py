@@ -25,7 +25,7 @@ class Backend:
             return f"Error: Wiki page {name} not found."
 
         except Exception as e:
-            raise f"Network error: {e}"
+            return f"Network error: {e}"
 
 
     #Gets the names of all pages from the content bucket.

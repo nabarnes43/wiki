@@ -19,11 +19,9 @@ def client(app):
 def test_home_page(client):
     resp = client.get("/")
     assert resp.status_code == 200
-    assert b"<title>Wikipedia!</title>" in resp.data
-    # assert b"<h1>Wikipedia!</h1>" in resp.data
-    # assert b"<a href=\"/about\">About</a>" in resp.data
-    # assert b"<a href=\"/signup\">Sign Up</a>" in resp.data
-    # assert b"Hey there, thanks for using Wikipedia!" in resp.data
+    assert b"<title>People To Know In Computer Science</title>" in resp.data
+    assert b"This wiki is dedicated to providing information and insight into the lives and works of the most influential and notable people in the field of computer science. From pioneers of computer programming and artificial intelligence to modern-day innovators in cybersecurity and machine learning, this wiki seeks to showcase the incredible contributions made by these individuals to the world of computer science." in resp.data
+
 
 def test_about_page(client):
     resp = client.get("/about")

@@ -16,7 +16,7 @@ def test_get_wiki_successful():
     storage_client.bucket.return_value = bucket
     bucket.blob.return_value = blob
     blob.open.return_value.__enter__.return_value.read.return_value = content
-    
+
     # call the function
     backend = Backend(storage_client)
     result = backend.get_wiki_page("test_wiki")
@@ -40,8 +40,19 @@ def test_get_wiki_page_blob_not_found():
 
     assert result == f"Error: Wiki page {wiki_name} not found."
 
-#def network error exeption next.
 
+def test_get_wiki_page_network_error():
+    storage_client = MagicMock()
+    storage_client.bucket.side_effect = Exception("Network error")
+
+    backend = Backend(storage_client)
+
+    page_name = "example_page"
+    expected_error_message = 'Network error: Network error'
+    result = backend.get_wiki_page(page_name)
+    assert result == expected_error_message
+
+#Make test routes for get page lists:
 
 
 def test_unsuccessful_upload():
