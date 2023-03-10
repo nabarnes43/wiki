@@ -12,6 +12,7 @@ class Backend:
     def __init__(self, storage_client = storage.Client()):
         self.storage_client = storage_client
         
+    
     def get_wiki_page(self, name):
         try:
             bucket = self.storage_client.bucket("sdswiki_contents")
@@ -40,13 +41,14 @@ class Backend:
         return pages_names_list
 
     def upload(self, data, destination_blob_name):
+        bucket = self.storage_client.bucket('sdswiki_contents')
         blobs = self.storage_client.list_blobs('sdswiki_contents')
 
         for blob in blobs:
             if destination_blob_name == blob.name:
                 return 'Upload failed. You cannot overrite an existing page'
 
-        blob = self.storage_client.blob(destination_blob_name)
+        blob = bucket.blob(destination_blob_name)
         blob.upload_from_string(data)
         
         return f"{destination_blob_name} with contents {data} uploaded to sdswiki_contents."
@@ -71,7 +73,6 @@ class Backend:
     def sign_in(self, username, password):
         bucket = self.storage_client.bucket('sdsusers_passwords')
         blob = bucket.blob(username)
-        password = password.encode()
         salty_password = f"{username}{password}".encode()
         hashed = hashlib.sha3_256(salty_password).hexdigest()
 

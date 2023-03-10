@@ -16,7 +16,7 @@ def test_get_wiki_successful():
     storage_client.bucket.return_value = bucket
     bucket.blob.return_value = blob
     blob.open.return_value.__enter__.return_value.read.return_value = content
-
+    
     # call the function
     backend = Backend(storage_client)
     result = backend.get_wiki_page("test_wiki")
