@@ -2,9 +2,47 @@ from flaskr.backend import Backend
 import unittest 
 from unittest.mock import MagicMock
 from unittest.mock import Mock
+from google.cloud import exceptions
 from unittest.mock import patch
 
 # TODO(Project 1): Write tests for Backend methods.
+def test_get_wiki_successful():
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+
+    # set up mock objects
+    content = "This is a test wiki page."
+    storage_client.bucket.return_value = bucket
+    bucket.blob.return_value = blob
+    blob.open.return_value.__enter__.return_value.read.return_value = content
+
+    # call the function
+    backend = Backend(storage_client)
+    result = backend.get_wiki_page("test_wiki")
+
+    # assert the result
+    assert result == content
+
+def test_get_wiki_page_blob_not_found():
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    bucket.name = 'mock_bucket_name'
+    blob = MagicMock()
+    blob.name = 'mock_name'
+    blob.open.side_effect = exceptions.NotFound('Blob not found')
+    bucket.blob.return_value = blob
+    storage_client.bucket.return_value = bucket
+
+    backend = Backend(storage_client)
+    wiki_name = 'mock_wiki_name'
+    result = backend.get_wiki_page(wiki_name)
+
+    assert result == f"Error: Wiki page {wiki_name} not found."
+
+#def network error exeption next.
+
+
 
 def test_unsuccessful_upload():
     blob = MagicMock()

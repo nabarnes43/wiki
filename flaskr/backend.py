@@ -1,5 +1,6 @@
 # TODO(Project 1): Implement Backend according to the requirements.
 from google.cloud import storage
+from google.cloud import exceptions
 import hashlib
 import io
 from flask import Flask
@@ -12,14 +13,18 @@ class Backend:
         self.storage_client = storage_client
         
     def get_wiki_page(self, name):
+        try:
+            bucket = self.storage_client.bucket("sdswiki_contents")
+            blob = bucket.blob(name)
+            with blob.open() as f:
+                content = f.read()
+            return content
+            
+        except exceptions.NotFound:
+            return f"Error: Wiki page {name} not found."
 
-        bucket = self.storage_client.bucket("sdswiki_contents")
-        blob = bucket.blob(name)
-        
-        with blob.open() as f:
-            return f.read()
-
-        #add error handling
+        except Exception as e:
+            raise f"Network error: {e}"
 
 
     #Gets the names of all pages from the content bucket.
