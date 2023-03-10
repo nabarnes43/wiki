@@ -17,6 +17,7 @@ def client(app):
 
 
 def test_home_page(client):
+    # pass
     resp = client.get("/")
     assert resp.status_code == 200
     assert b"<title>Wikipedia!</title>" in resp.data
