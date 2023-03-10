@@ -75,12 +75,12 @@ def make_endpoints(app, login_manager):
         if  username == '' or  password == '':
             return "Please enter a username and password."
 
-        print(username)
-        print(password)
-
-        backend.sign_up(username, password)
-
-        return render_template("createaccount.html")
+        try:
+            backend.sign_up(username, password)
+            return render_template("createaccount.html", username=username)
+            
+        except Exception as e:
+            return f"Account creation failed: {e}"
 
     @app.route("/pages", methods=['GET'])
     def pages():
@@ -98,13 +98,15 @@ def make_endpoints(app, login_manager):
 
     @app.route("/upload", methods = ['GET', 'POST'])
     def uploads():
+
         if request.method == 'POST':
             backend = Backend()
             destination_blob = str(request.form['destination_blob'])
             data_file = request.files['data_file']
 
             data = data_file.read()
-            result = backend.upload(data, destination_blob)
-            return result
+            upload_status = backend.upload(data, destination_blob)
+
+            return upload_status
 
         return render_template('upload.html')
