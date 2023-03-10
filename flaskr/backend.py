@@ -4,17 +4,14 @@ import hashlib
 import io
 
 
-BUCKET_NAME = "sdswiki_contents"
-
 class Backend:
 
-    def __init__(self):
-        self.storage_client = storage.Client()
+    def __init__(self, storage_client = storage.Client()):
+        self.storage_client = storage_client
         
     def get_wiki_page(self, name):
 
-        storage_client = storage.Client()
-        bucket = storage_client.bucket(BUCKET_NAME)
+        bucket = self.storage_client.bucket("sdswiki_contents")
         blob = bucket.blob(name)
         
         with blob.open() as f:
@@ -24,10 +21,8 @@ class Backend:
     #Gets the names of all pages from the content bucket.
     def get_all_page_names(self): #does this need to return a value? or pages names list saved as a class variable so i can access it later?
         pages_names_list = []
-
-        storage_client = storage.Client()
         
-        blobs = storage_client.list_blobs(BUCKET_NAME)
+        blobs = self.storage_client.list_blobs("sdswiki_contents")
 
         # Note: The call returns a response only when the iterator is consumed.
         for blob in blobs:
@@ -36,9 +31,13 @@ class Backend:
         return pages_names_list
 
     def upload(self, data, destination_blob_name):
-        bucket = self.storage_client.bucket('sdswiki_contents')
-        blob = bucket.blob(destination_blob_name)
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
 
+        for blob in blobs:
+            if destination_blob_name == blob.name:
+                return 'Upload failed. You cannot overrite an existing page'
+
+        blob = self.storage_client.blob(destination_blob_name)
         blob.upload_from_string(data)
         
         return f"{destination_blob_name} with contents {data} uploaded to sdswiki_contents."
@@ -53,9 +52,8 @@ class Backend:
                 return f"user {name} already exists in the database. Please sign in." 
 
         blob = bucket.blob(name) 
-
         with blob.open("w") as user:
-            salty_password = f"{name}{password}".encode
+            salty_password = f"{name}{password}".encode()
             secure_password = hashlib.sha3_256(salty_password).hexdigest()
             user.write(secure_password)
 
