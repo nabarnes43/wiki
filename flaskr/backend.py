@@ -87,6 +87,6 @@ class Backend:
 
         with blob.open("rb") as f:
             img = f.read()
-        image = base64.b64encode(img).decode("utf-8")
-        return image
+
+        return img
 
