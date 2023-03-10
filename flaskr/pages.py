@@ -27,7 +27,7 @@ def make_endpoints(app):
         backend = Backend()
         nasir_img = b64encode(backend.get_image("Nasir.Barnes.Headshot.JPG")).decode("utf-8")
         elei_img = b64encode(backend.get_image("Mary.Elei.Nkata.jpeg")).decode("utf-8")
-        dimitri_img = b64encode(backend.get_image("cat.jpg")).decode("utf-8")
+        dimitri_img = b64encode(backend.get_image("Dimitri.Pierre-Louis.JPG")).decode("utf-8")
 
         return render_template("about.html", nasir_img = nasir_img, elei_img = elei_img, dimitri_img = dimitri_img)
 
@@ -48,12 +48,12 @@ def make_endpoints(app):
         if  username == '' or  password == '':
             return "Please enter a username and password."
 
-        print(username)
-        print(password)
-
-        backend.sign_up(username, password)
-
-        return render_template("createaccount.html")
+        try:
+            backend.sign_up(username, password)
+            return render_template("createaccount.html", username=username)
+            
+        except Exception as e:
+            return f"Account creation failed: {e}"
 
     @app.route("/pages", methods=['GET'])
     def pages():

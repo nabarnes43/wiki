@@ -57,7 +57,7 @@ class Backend:
         blob = bucket.blob(name) 
 
         with blob.open("w") as user:
-            salty_password = f"{name}{password}".encode
+            salty_password = f"{name}{password}".encode()
             secure_password = hashlib.sha3_256(salty_password).hexdigest()
             user.write(secure_password)
 
