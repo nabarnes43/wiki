@@ -47,7 +47,6 @@ class Backend:
         return f"{destination_blob_name} with contents {data} uploaded to sdswiki_contents."
 
     def sign_up(self, name, password):
-        #this saves the username as a blob with the hashed password inside.
         bucket = self.storage_client.bucket('sdsusers_passwords')
         blobs = self.storage_client.list_blobs('sdsusers_passwords')
 
