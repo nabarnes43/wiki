@@ -2,6 +2,8 @@
 from google.cloud import storage
 import hashlib
 import io
+from flask import Flask
+import base64
 
 
 class Backend:
@@ -16,6 +18,8 @@ class Backend:
         
         with blob.open() as f:
             return f.read()
+
+        #add error handling
 
 
     #Gets the names of all pages from the content bucket.
@@ -59,13 +63,23 @@ class Backend:
 
         return f"user {name} successfully created."
 
-    def sign_in(self, username, secure_password):
-        blobs = self.storage_client.list_blobs('sdsusers_passwords')
+    def sign_in(self, username, password):
+        bucket = self.storage_client.bucket('sdsusers_passwords')
+        blob = bucket.blob(username)
+        password = password.encode()
+        salty_password = f"{username}{password}".encode()
+        hashed = hashlib.sha3_256(salty_password).hexdigest()
 
-        for blob in blobs: 
-            if blob.secure_password == secure_password:
-                return f"User {username} login successful"
-        return f"Invalid password entered for user {username}"
+        try:        
+            with blob.open("r") as username:
+                secure_password = username.read()
+        except:
+            return "Username not found"
+        
+        if hashed == secure_password:
+            return True
+        return False
+
 
     def get_image(self, name):
         bucket = self.storage_client.bucket('sdsimages')
@@ -73,6 +87,6 @@ class Backend:
 
         with blob.open("rb") as f:
             img = f.read()
-        
+        image = base64.b64encode(img).decode("utf-8")
+        return image
 
-        return img
