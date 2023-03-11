@@ -13,27 +13,28 @@
     <a href="/login">Log In</a>
 
     {% else %}
-    <a href='#'</a>{{name}}</a>
-    |
+    <a>{{name}}</a>
     <a href="/upload">Upload</a>
     <a href="/logout">Log Out</a>  
     {% endif %} 
 
 <head>
-     <!-- TODO(Checkpoint Requirement 3): Change the title and content of your wiki.-->
-    <title>Wikipedia!</title>
+    <title>People To Know In Computer Science</title>
     
     {% block page_name %}
-    <h1>Wikipedia!</h1>
+    <h1>People To Know In Computer Science</h1>
     <div>       
-        Hey there {{name}}, thanks for using Wikipedia! We hope you enjoy the experience and find everything you're looking for. 
+        Welcome {{name}} to the People to Know in Computer Science Wiki!</br></br>
+
+        This wiki is dedicated to providing information and insight into the lives and works of the most influential and notable people in the field of computer science. From pioneers of computer programming and artificial intelligence to modern-day innovators in cybersecurity and machine learning, this wiki seeks to showcase the incredible contributions made by these individuals to the world of computer science.
+        </br></br>
+        Whether you're a student, professional, or just someone with a general interest in computer science, this wiki is the perfect resource for learning about the people who have helped shape the field into what it is today. We hope that you find our wiki informative, educational, and enjoyable to explore.
     </div>
     </br>
     {% endblock %}
 </head>  
 
 <body>
-    <!-- TODO(Project 1): Implement routes. -->
     {% block content %}
     
     {% endblock %}
