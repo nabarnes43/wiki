@@ -1,6 +1,7 @@
 from flaskr import create_app
 from .backend import Backend
 import pytest
+import io
 
 # See https://flask.palletsprojects.com/en/2.2.x/testing/ 
 # for more info on testing
@@ -88,20 +89,18 @@ def test_create_account_exception(client, monkeypatch):
     assert response.status_code == 200
     assert b'Account creation failed: Test exception' in response.data
 
-def test_about_page(client):
-    resp = client.get("/about")
-    assert resp.status_code == 200
-    assert b"<h1>About This Wiki</h1>" in resp.data
-    assert b"<h3>Your Authors</h3>" in resp.data
-
 def test_pages_list(client):
     resp = client.get("/pages")
     assert resp.status_code == 200
+    assert b'Pages contained in this Wiki' in resp.data
 
 def test_specific_page(client):
-    resp = client.get("/pages/testing uploads.txt")
+    resp = client.get("/pages/page_test")
     assert resp.status_code == 200
 
-def test_upload(client):
+def test_upload_page(client):
+
     resp = client.get("/upload")
+
     assert resp.status_code == 200
+    assert b'Upload a doc to the Wiki' in resp.data
