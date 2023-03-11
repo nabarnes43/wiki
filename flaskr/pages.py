@@ -101,7 +101,7 @@ def make_endpoints(app, login_manager):
             backend = Backend()
             destination_blob = str(request.form['destination_blob'])
             data_file = request.files['data_file']
-
+ 
             data = data_file.read()
             upload_status = backend.upload(data, destination_blob)
 
