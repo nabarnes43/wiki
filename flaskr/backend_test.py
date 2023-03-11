@@ -1,7 +1,6 @@
 from flaskr.backend import Backend
 import unittest 
 from unittest.mock import MagicMock
-from unittest.mock import Mock
 from google.cloud import exceptions
 from unittest.mock import patch
 
@@ -44,7 +43,7 @@ def test_get_wiki_page_blob_not_found():
 
 
 
-def test_unsuccessful_upload():
+def test_upload_existing_page():
     blob = MagicMock()
     blob.name = 'mock_name'
     storage_client = MagicMock()
@@ -54,6 +53,17 @@ def test_unsuccessful_upload():
     upload_result = backend.upload('random stuff', 'mock_name')
     assert upload_result == 'Upload failed. You cannot overrite an existing page'
 
+def test_upload_no_page_name():
+    backend = Backend()
+    upload_result = backend.upload('random stuff', '')
+    assert upload_result == 'Please provide the name of the page.'
+
+def test_upload_no_file():
+    backend = Backend()
+    upload_result = backend.upload(b'', 'mock_name')
+    assert upload_result == 'Please upload a file.'
+
+
 def test_successful_upload():
     storage_client = MagicMock()
     blob = MagicMock()
@@ -61,7 +71,7 @@ def test_successful_upload():
     
     backend = Backend(storage_client)
     upload_result = backend.upload('random stuff', 'mock_name')
-    assert 'uploaded to sdswiki_contents.' in upload_result
+    assert 'uploaded to Wiki.' in upload_result
 
 def test_upload_to_empty_database():
     storage_client = MagicMock()
@@ -69,7 +79,7 @@ def test_upload_to_empty_database():
 
     backend = Backend(storage_client)
     upload_result = backend.upload('random stuff', 'mock_name')
-    assert 'uploaded to sdswiki_contents.' in upload_result
+    assert 'uploaded to Wiki.' in upload_result
 
 def test_successful_sign_up():
     blob1 = MagicMock()
