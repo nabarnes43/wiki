@@ -105,6 +105,6 @@ def make_endpoints(app, login_manager):
             data = data_file.read()
             upload_status = backend.upload(data, destination_blob)
 
-            return upload_status
+            return render_template('upload_result.html', upload_status = upload_status)
 
         return render_template('upload.html')
