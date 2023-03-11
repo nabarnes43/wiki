@@ -129,6 +129,10 @@ def test_get_all_page_names_network_error():
 
 
 def test_upload_existing_page():
+    '''
+    Test that you cannot upload a page when it already exists
+    '''
+
     blob = MagicMock()
     blob.name = 'mock_name'
     storage_client = MagicMock()
@@ -136,20 +140,29 @@ def test_upload_existing_page():
 
     backend = Backend(storage_client)
     upload_result = backend.upload('random stuff', 'mock_name')
+
     assert upload_result == 'Upload failed. You cannot overrite an existing page'
 
 def test_upload_no_page_name():
+    '''
+    Test error message displayed if no page name is provided.
+    '''
     backend = Backend()
     upload_result = backend.upload('random stuff', '')
     assert upload_result == 'Please provide the name of the page.'
 
 def test_upload_no_file():
+    '''
+    Test error message displayed if no data for the page is provided.
+    '''
     backend = Backend()
     upload_result = backend.upload(b'', 'mock_name')
     assert upload_result == 'Please upload a file.'
 
-
 def test_successful_upload():
+    '''
+    Test successful upload.
+    '''
     storage_client = MagicMock()
     blob = MagicMock()
     storage_client.list_blobs.return_value = [blob]
@@ -160,6 +173,9 @@ def test_successful_upload():
 
 
 def test_upload_to_empty_database():
+    '''
+    Test that uploads are still possible even if database was previously empty.
+    '''
     storage_client = MagicMock()
     storage_client.list_blobs.return_value = []
 
@@ -169,6 +185,9 @@ def test_upload_to_empty_database():
 
 
 def test_successful_sign_up():
+    '''
+    Test that sign up is successful if it is a new user
+    '''
     blob1 = MagicMock()
     blob2 = MagicMock()
     blob1.name = 'Mary'
@@ -183,6 +202,9 @@ def test_successful_sign_up():
 
 
 def test_unsuccessful_sign_up():
+    '''
+    Test that sign up is unsuccessful if it is not a new user
+    '''
     blob1 = MagicMock()
     blob2 = MagicMock()
     blob1.name = 'Mary'

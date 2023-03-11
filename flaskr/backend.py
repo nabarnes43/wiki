@@ -63,6 +63,17 @@ class Backend:
             return f"Network error: {e}"
 
     def upload(self, data, destination_blob_name):
+        '''
+        Uploads page to Wiki server
+
+        Args:
+            destination_blob_name = name of page to be uploaded
+            data = the information to be displayed on the page
+
+        returns:
+            A response message stating if your upload was successful or not.
+            If the upload was unsuccessulf, the reason why would be displayed.
+        '''
         if data == b'':
             return 'Please upload a file.'
         if destination_blob_name == '':
@@ -81,6 +92,17 @@ class Backend:
         return f"{destination_blob_name} uploaded to Wiki."
 
     def sign_up(self, name, password):
+        '''
+        Allows a person to create an account on the wiki if they are using it for th efirst time.
+
+        Args:
+            name = This acts as the username of the person
+            password = The password associated with the account for the wiki
+
+        Returns:
+            A message letting you know if your account was successfully created,
+            or if it was unsuccessful because the user already exists.
+        '''
         bucket = self.storage_client.bucket('sdsusers_passwords')
         blobs = self.storage_client.list_blobs('sdsusers_passwords')
 

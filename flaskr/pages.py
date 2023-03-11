@@ -110,6 +110,9 @@ def make_endpoints(app, login_manager):
 
     @app.route("/pages", methods=['GET'])
     def pages():
+        '''
+        Displayes a list of all the pages in the wiki.
+        '''
         backend = Backend()
         all_pages = backend.get_all_page_names()
 
@@ -117,6 +120,9 @@ def make_endpoints(app, login_manager):
 
     @app.route("/pages/<page_title>", methods=['GET'])
     def page_details(page_title):
+        '''
+        displays the details of the specific wiki page selected.
+        '''
         backend = Backend()
         page = backend.get_wiki_page(page_title)
 
@@ -124,12 +130,20 @@ def make_endpoints(app, login_manager):
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
+        '''
+        Renders the upload page where form is displayed to enable users to upload a page. 
+
+        Returns:
+            If method is GET: The page to fill out the form specifying what you want to upload
+            If method is POST: The status message stating if the upload was successful or not. If the upload was unsuccessful, it states the reason why.
+
+        '''
 
         if request.method == 'POST':
             backend = Backend()
             destination_blob = str(request.form['destination_blob'])
             data_file = request.files['data_file']
- 
+
             data = data_file.read()
             upload_status = backend.upload(data, destination_blob)
 

@@ -118,16 +118,24 @@ def test_create_account_exception(client, monkeypatch):
     assert b'Account creation failed: Test exception' in response.data
 
 def test_pages_list(client):
+    '''
+    Test that it displays all the pagas available for view on the wiki.
+    '''
     resp = client.get("/pages")
     assert resp.status_code == 200
     assert b'Pages contained in this Wiki' in resp.data
 
 def test_specific_page(client):
+    '''
+    Test that specific page can be called to display.
+    '''
     resp = client.get("/pages/page_test")
     assert resp.status_code == 200
 
 def test_upload_page(client):
-
+    '''
+    Test that the upload page displays correctly when called.
+    '''
     resp = client.get("/upload")
 
     assert resp.status_code == 200
