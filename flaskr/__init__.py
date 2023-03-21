@@ -33,4 +33,5 @@ def create_app(test_config=None):
     # and additional endpoints.
     pages.make_endpoints(app, login_manager)
     login_manager.init_app(app)
+    app.config['WTF_CSRF_ENABLED']=False
     return app
