@@ -67,30 +67,30 @@ class Backend:
 
         return f"user {name} successfully created."
 
+    #Checks the buckets to ensure correct info is being used for logins
     def sign_in(self, username, password):
-        bucket = self.storage_client.bucket('sdsusers_passwords')
-        blob = bucket.blob(username)
-        password = password.encode()
         salty_password = f"{username}{password}".encode()
         hashed = hashlib.sha3_256(salty_password).hexdigest()
-
-        try:        
-            with blob.open("r") as username:
-                secure_password = username.read()
-        except:
+        blobs = self.storage_client.list_blobs('sdsusers_passwords')
+        stored = False
+        
+        for blob in blobs:
+            if username == blob.name:
+                with blob.open("r") as username:
+                    secure_password = username.read()
+                stored = True
+        if not stored:  
             return "Username not found"
         
         if hashed == secure_password:
-            return True
-        return False
+            return 'Sign In Successful'
+        return 'Incorrect Password'
 
-
+    #returns the requested image in binary form 
     def get_image(self, name):
         bucket = self.storage_client.bucket('sdsimages')
         blob = bucket.blob(name)
-
+        
         with blob.open("rb") as f:
             img = f.read()
-
         return img
-

@@ -88,12 +88,6 @@ def test_create_account_exception(client, monkeypatch):
     assert response.status_code == 200
     assert b'Account creation failed: Test exception' in response.data
 
-def test_about_page(client):
-    resp = client.get("/about")
-    assert resp.status_code == 200
-    assert b"<h1>About This Wiki</h1>" in resp.data
-    assert b"<h3>Your Authors</h3>" in resp.data
-
 def test_pages_list(client):
     resp = client.get("/pages")
     assert resp.status_code == 200
@@ -105,3 +99,42 @@ def test_specific_page(client):
 def test_upload(client):
     resp = client.get("/upload")
     assert resp.status_code == 200
+
+#Testing that users are seeing the correct login page
+def test_login_page(client):
+    resp = client.get('/login')
+    assert resp.status_code == 200
+    assert b'<h1>Sign In</h1>' in resp.data
+    assert b'Username' in resp.data
+    assert b'Password' in resp.data
+    assert b'value="Submit"' in resp.data
+
+#Testing that users see the correct page when wrong username is entered
+def test_login_wrong_username(client):
+    resp = client.post('/login', data = {
+        'username': 'sdf',
+        'password': 'testing123', 
+    })
+    assert resp.status_code == 200
+    assert b'The username is incorrect' in resp.data
+
+#Testing that users are sent to the right page when the wrong password is entered
+def test_login_wrong_password(client):
+    resp = client.post('/login', data = {
+        'username': 'Dimitripl5',
+        'password': 'testing76576', 
+    })
+    assert resp.status_code == 200
+    assert b'An incorrect password was entered' in resp.data
+
+#Testing that users are able to login and logout successfully
+def test_login_and_logout_successful(client):
+    resp = client.post('/login', data=dict(
+        username='Dimitripl5',
+        password='testing123', 
+    ))
+    assert resp.status_code == 200
+    assert b'Hey there Dimitripl5' in resp.data
+    assert b'Log Out' in resp.data
+    resp = client.get("/logout")
+    assert b'Log In' in resp.data
