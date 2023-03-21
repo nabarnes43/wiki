@@ -1,3 +1,4 @@
+#User class which is used for logins
 class User():
     def __init__(self,username):
         self.name = username
