@@ -1,19 +1,16 @@
 # Grade
 
+OVERALL GRADE (Individual grades may vary based on effort.)
 
-| Requirement             | Value | Grade |
-| ----------------------- | ----- | ----- |
-| Checkin                 | 10    | -    |
-| Backend                 | 10    | -     |
-| Home/About/Page Routes  | 10    | -     |
-| Sign up/in/out          | 10    | -     |
-| Upload                  | 5     | -     |
-| Navigation Bar          | 5     | -     |
-| Wiki pages              | 10    | -     |
-| Unit Tests and Comments | 35    | -     |
-| Comments                | 5     | -     |
-| Bad Style Penalty       | -5    | -     |
-
-## General Grading Notes
-
-- The requirements.txt was missing some dependencies: 'flask_wtf'
+| Requirement            | Value | Grade | Note                                                                                                                                                                                                                                                              |
+| ---------------------- | ----- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Checkin                | 10    | 10    |                                                                                                                                                                                                                                                                   |
+| Backend                | 10    | 10    |                                                                                                                                                                                                                                                                   |
+| Home/About/Page Routes | 10    | 9     | About images don't render correctly                                                                                                                                                                                                                               |
+| Sign up/in/out         | 10    | 10    |                                                                                                                                                                                                                                                                   |
+| Upload                 | 5     | 5     |                                                                                                                                                                                                                                                                   |
+| Navigation Bar         | 5     | 5     |                                                                                                                                                                                                                                                                   |
+| Wiki pages             | 10    | 10    |                                                                                                                                                                                                                                                                   |
+| Unit Tests             | 35    | 25    | Great variety of tests, especially on error cases. Unit tests often don't validate the Storage bucket was written to. Pages tests don't check that the backend is loading in data via fake or real data.       Data upload page functionality wasn't well tested. |
+| Comments               | 5     | 3     | Missing class comments and several missing function comments.                                                                                                                                                                                                     |
+| Bad Style Penalty      | -5    | -2    | Some messy HTML and leftover TODOs.                                                                                                                                                                                                                               |
