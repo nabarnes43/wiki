@@ -1,3 +1,4 @@
+# GRADED - Samuel Davidson - March 21, 2023 
 class User():
     def __init__(self,username):
         self.name = username
