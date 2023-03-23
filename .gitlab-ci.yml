@@ -1,8 +1,20 @@
 image: python:3
+
 lint:
  stage: test
  script:
  - pip install yapf
  - yapf --style google --diff --recursive .
+ only:
+ - pushes
+
+ unittest:
+ stage: test
+ needs: 
+ - pipeline: lint
+   job: lint
+ script:
+ - git clone git@git.sds-techx.in:Team SEND/project.git
+ - pytest
  only:
  - pushes
