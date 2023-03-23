@@ -11,7 +11,7 @@ lint:
  unittest:
  stage: test
  needs: 
- - pipeline: lint
+ - pipeline: test
    job: lint
  script:
  - git clone git@git.sds-techx.in:Team SEND/project.git
