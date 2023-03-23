@@ -4,8 +4,6 @@ from unittest.mock import MagicMock
 from google.cloud import exceptions
 from unittest.mock import patch
 
-
-
 # TODO(Project 1): Write tests for Backend methods.
 
 
@@ -145,6 +143,7 @@ def test_upload_existing_page():
 
     assert upload_result == 'Upload failed. You cannot overrite an existing page'
 
+
 def test_upload_no_page_name():
     '''
     Test error message displayed if no page name is provided.
@@ -153,6 +152,7 @@ def test_upload_no_page_name():
     upload_result = backend.upload('random stuff', '')
     assert upload_result == 'Please provide the name of the page.'
 
+
 def test_upload_no_file():
     '''
     Test error message displayed if no data for the page is provided.
@@ -160,6 +160,7 @@ def test_upload_no_file():
     backend = Backend()
     upload_result = backend.upload(b'', 'mock_name')
     assert upload_result == 'Please upload a file.'
+
 
 def test_successful_upload():
     '''
@@ -219,7 +220,8 @@ def test_unsuccessful_sign_up():
 
     assert 'already exists in the database' in sign_up_result
 
-#Testing that wrong usernames are found and that "Username not found" is returned 
+
+#Testing that wrong usernames are found and that "Username not found" is returned
 def test_no_username_sign_in():
     blob1 = MagicMock()
     blob1.name = 'randomuser3456'
@@ -231,7 +233,8 @@ def test_no_username_sign_in():
 
     assert result == 'Username not found'
 
-#Testing that wrong passwords are found and that "incorrect password" is returned 
+
+#Testing that wrong passwords are found and that "incorrect password" is returned
 def test_wrong_password_sign_in():
     blob1 = MagicMock()
     blob1.name = 'randomuser3456'
@@ -244,6 +247,7 @@ def test_wrong_password_sign_in():
 
     assert result == 'Incorrect Password'
 
+
 #Testing that successful sign ins are happening
 def test_successful_sign_in():
     blob1 = MagicMock()
@@ -252,11 +256,12 @@ def test_successful_sign_in():
     storage_client.list_blobs.return_value = [blob1]
     expected = '44753b854331dc6fbaf617deec25f1aee7d8a25133ca585c70aba5884ef9a1dd'
     blob1.open.return_value.__enter__.return_value.read.return_value = expected
-    
+
     backend = Backend(storage_client)
     result = backend.sign_in("dimitripl5", "testing123")
 
     assert result == 'Sign In Successful'
+
 
 #Testing that the get image function is properly returning
 def test_get_image_successful():

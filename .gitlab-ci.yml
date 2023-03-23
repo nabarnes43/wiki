@@ -2,7 +2,7 @@ image: python:3
 lint:
  stage: test
  script:
- - sudo pip install yapf
- - yapf --recursive .
+ - pip install yapf
+ - yapf --style google --diff --recursive .
  only:
  - pushes

@@ -87,7 +87,7 @@ class Backend:
 
         blob = bucket.blob(destination_blob_name)
         blob.upload_from_string(data)
-        
+
         return f"{destination_blob_name} uploaded to Wiki."
 
     def sign_up(self, name, password):
@@ -133,19 +133,19 @@ class Backend:
         hashed = hashlib.sha3_256(salty_password).hexdigest()
         blobs = self.storage_client.list_blobs('sdsusers_passwords')
         stored = False
-        
+
         for blob in blobs:
             if username == blob.name:
                 with blob.open("r") as username:
                     secure_password = username.read()
                 stored = True
-        if not stored:  
+        if not stored:
             return "Username not found"
 
         if hashed == secure_password:
             return 'Sign In Successful'
         return 'Incorrect Password'
-    
+
     def get_image(self, name):
         '''
         Allows images to be pulled from the bucket and sent to the html pages. 
@@ -158,7 +158,7 @@ class Backend:
         '''
         bucket = self.storage_client.bucket('sdsimages')
         blob = bucket.blob(name)
-        
+
         with blob.open("rb") as f:
             img = f.read()
         return img
