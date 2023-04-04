@@ -159,6 +159,7 @@ def test_login_page(client):
 
 #Testing that users see the correct page when wrong username is entered
 def test_login_wrong_username(client, monkeypatch):
+
     def mock_sign_in(self, username, password):
         return "Username not found"
 
@@ -174,6 +175,7 @@ def test_login_wrong_username(client, monkeypatch):
 
 #Testing that users are sent to the right page when the wrong password is entered
 def test_login_wrong_password(client, monkeypatch):
+
     def mock_sign_in(self, username, password):
         return 'Incorrect Password'
 
@@ -189,6 +191,7 @@ def test_login_wrong_password(client, monkeypatch):
 
 #Testing that users are able to login and logout successfully
 def test_login_and_logout_successful(client, monkeypatch):
+
     def mock_sign_in(self, username, password):
         return 'Sign In Successful'
 
