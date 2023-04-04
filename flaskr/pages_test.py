@@ -29,7 +29,7 @@ def test_home_page(client):
     assert b"This wiki is dedicated to providing information and insight into the lives and works of the most influential and notable people in the field of computer science. From pioneers of computer programming and artificial intelligence to modern-day innovators in cybersecurity and machine learning, this wiki seeks to showcase the incredible contributions made by these individuals to the world of computer science." in resp.data
 
 
-def skip_test_about_page(client):
+def test_about_page(client):
     """
     Test that the about page loads successfully and contains the expected content.
     """
@@ -51,7 +51,7 @@ def test_signup_page(client):
     assert b'<input type="submit" value="Signup"/>' in resp.data
 
 
-def skip_test_create_account_succesful_page(client):
+def test_create_account_succesful_page(client):
     """
     GIVEN a Flask application
     WHEN the '/createaccount' page is posted with username and password
@@ -173,7 +173,11 @@ def test_login_wrong_username(client, monkeypatch):
 
 
 #Testing that users are sent to the right page when the wrong password is entered
-def skip_test_login_wrong_password(client):
+def test_login_wrong_password(client, monkeypatch):
+    def mock_sign_in(self, username, password):
+        return 'Incorrect Password'
+
+    monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
                        data={
                            'username': 'Dimitripl5',
@@ -184,7 +188,11 @@ def skip_test_login_wrong_password(client):
 
 
 #Testing that users are able to login and logout successfully
-def skip_test_login_and_logout_successful(client):
+def test_login_and_logout_successful(client, monkeypatch):
+    def mock_sign_in(self, username, password):
+        return 'Sign In Successful'
+
+    monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
                        data=dict(
                            username='Dimitripl5',
