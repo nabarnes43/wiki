@@ -158,7 +158,11 @@ def test_login_page(client):
 
 
 #Testing that users see the correct page when wrong username is entered
-def skip_test_login_wrong_username(client):
+def test_login_wrong_username(client, monkeypatch):
+    def mock_sign_in(self, username, password):
+        return "Username not found"
+
+    monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
                        data={
                            'username': 'sdf',
