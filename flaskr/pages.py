@@ -176,3 +176,8 @@ def make_endpoints(app, login_manager):
                                    upload_status=upload_status)
 
         return render_template('upload.html')
+
+    @app.route("/edit/<title>", methods=['GET'])
+    def edit(title):
+        content = ''
+        return render_template('edit.html', title = title, content = content)
