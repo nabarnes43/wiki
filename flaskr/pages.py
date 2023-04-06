@@ -151,7 +151,7 @@ def make_endpoints(app, login_manager):
         backend = Backend()
         page = backend.get_wiki_page(page_title)
 
-        return render_template('pages.html', page=page)
+        return render_template('pageDetails.html', isAuthor = True, title = page_title, page=page)
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
