@@ -161,4 +161,7 @@ class Backend:
 
         with blob.open("rb") as f:
             img = f.read()
+
         return img
+
+

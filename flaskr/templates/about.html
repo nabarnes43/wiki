@@ -1,5 +1,6 @@
 {% extends "main.html" %}
 
+
 {% block page_name %}
 <h1>About This Wiki</h1>
 {% endblock %}
@@ -21,7 +22,11 @@ Thank you for visiting our wiki, and we hope that you find it both informative a
 
 <h5>Nasir Barnes:</h5>
 
-<img src="data:image/jpeg;base64,{{ nasir_img }}" width="600" height="400"/>
+<link rel="stylesheet" href="/static/main.css" />
+
+<figure class="image is-256x256">
+    <img class="is-rounded" src="data:image/jpeg;base64,{{ nasir_img }}"/>
+</figure>
 
 
 <div>
@@ -31,8 +36,10 @@ Overall, Nasir's expertise, experience, and dedication to promoting technology e
 
 <h5>Mary Elei Nkata:</h5>
 
-<img src="data:image/jpeg;base64,{{ elei_img }}" width="600" 
-height="700"/>
+<figure class="image is-256x256">
+    <img class="is-rounded" src="data:image/jpeg;base64,{{ elei_img }}"/>
+</figure>
+
 
 <div>
 Mary Elei Nkata is an accomplished computer science major who has been actively involved in various programs and initiatives to promote technology education. She has participated in several organizations that provide underprivileged students with access to technology education and mentorship opportunities. As a mentor and student, Mary has helped many young students develop the skills and knowledge they need to succeed in the field of computer science.
@@ -41,8 +48,11 @@ Overall, Mary's expertise, experience, and dedication to promoting technology ed
 
 <h5>Dimitri Pierre-Louis:</h5>
 
-<img src="data:image/jpeg;base64,{{ dimitri_img }}" width="600" 
-height="800"/>
+
+<figure class="image is-256x256">
+    <img class="is-rounded" src="data:image/jpeg;base64,{{ dimitri_img }}"/>
+</figure>
+
 
 <div>
 Dimitri Pierre-Louis is an accomplished computer science major who has been actively involved in various programs and initiatives to promote technology education. He has participated in Tech Exchange, an organization that provides underprivileged students with access to technology education and mentorship opportunities. As a mentor and student, Dimitri has helped many young students develop the skills and knowledge they need to succeed in the field of computer science. Overall, Dimitri's expertise, experience, and dedication to promoting technology education make him a highly reliable source of information on the history of computer science and the individuals who have contributed to its growth and development.
