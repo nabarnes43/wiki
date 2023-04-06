@@ -4,7 +4,6 @@ from google.cloud import exceptions
 import hashlib
 import io
 from flask import Flask
-import base64
 
 
 class Backend:
@@ -88,7 +87,7 @@ class Backend:
 
         blob = bucket.blob(destination_blob_name)
         blob.upload_from_string(data)
-        
+
         return f"{destination_blob_name} uploaded to Wiki."
 
     def sign_up(self, name, password):
@@ -118,27 +117,48 @@ class Backend:
 
         return f"user {name} successfully created."
 
+    #Checks the buckets to ensure correct info is being used for logins
     def sign_in(self, username, password):
-        bucket = self.storage_client.bucket('sdsusers_passwords')
-        blob = bucket.blob(username)
+        '''
+        Allows a person to sign into their wiki account.
+
+        Args:
+            name = This acts as the username of the person
+            password = The password associated with the account for the wiki
+
+        Returns:
+            A message letting you know if login was successful or not.
+        '''
         salty_password = f"{username}{password}".encode()
         hashed = hashlib.sha3_256(salty_password).hexdigest()
+        blobs = self.storage_client.list_blobs('sdsusers_passwords')
+        stored = False
 
-        try:
-            with blob.open("r") as username:
-                secure_password = username.read()
-        except:
+        for blob in blobs:
+            if username == blob.name:
+                with blob.open("r") as username:
+                    secure_password = username.read()
+                stored = True
+        if not stored:
             return "Username not found"
 
         if hashed == secure_password:
-            return True
-        return False
+            return 'Sign In Successful'
+        return 'Incorrect Password'
 
     def get_image(self, name):
+        '''
+        Allows images to be pulled from the bucket and sent to the html pages. 
+
+        Args:
+            name = This name of the picture
+
+        Returns:
+            Binary form of the image reqested.
+        '''
         bucket = self.storage_client.bucket('sdsimages')
         blob = bucket.blob(name)
 
         with blob.open("rb") as f:
             img = f.read()
-
         return img

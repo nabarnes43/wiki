@@ -1,9 +1,10 @@
 {% extends "main.html" %}
+
+{% block page_name %}
+<h1>Sign In</h1>
+{% endblock %}
+
 {% block content %}
-<h1> Sign In</h1>
-{% for mesage in get_flashed_messages() %}
-<h2>{{ message }}</h2>
-{% endfor %}
 <form action="", method="post">
     {{ form.hidden_tag() }}
     <p>{{form.username.label}}<br>

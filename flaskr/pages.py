@@ -1,7 +1,6 @@
-
 # ---- YOUR APP STARTS HERE ----
 # -- Import section --
-from flask import Flask, redirect, url_for, flash
+from flask import Flask, flash
 from flask import render_template
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import request
@@ -29,6 +28,7 @@ def make_endpoints(app, login_manager):
             return render_template("main.html", name=current_user.name)
         return render_template("main.html")
 
+    #Allowing users to login, users are directed back to the home page after successful logins
     @app.route("/login", methods=['GET', 'POST'])
     def sign_in():
         backend = Backend()
@@ -38,25 +38,28 @@ def make_endpoints(app, login_manager):
             user = User(form.username.data)
             username = form.username.data
             status = backend.sign_in(form.username.data, form.password.data)
-            if status:
+            if status == 'Sign In Successful':
                 login_user(user, remember=True)
                 return render_template('main.html', name=current_user.name)
-            elif status == False:
-                flash("An incorrect password was entered")
+            elif status == 'Incorrect Password':
+                return "An incorrect password was entered"
             else:
-                flash("The username is incorrect")
+                return "The username is incorrect"
         return render_template('login.html', form=form, user=current_user)
 
+    #Loads the user (used by flask login)
     @login_manager.user_loader
     def load_user(user_id):
         return User(user_id)
 
+    #Allowing users to logout, login is required before this can be used
     @app.route("/logout", methods=['POST', 'GET'])
     @login_required
     def logout():
         logout_user()
-        return redirect(url_for('home'))
+        return render_template('main.html')
 
+    # About page
     @app.route("/about")
     def about():
         """Renders the about page with headshots of the team members.
@@ -65,11 +68,16 @@ def make_endpoints(app, login_manager):
             The rendered about page with headshot images of the team members.
         """
         backend = Backend()
-        nasir_img = backend.get_image("Nasir.Barnes.Headshot.JPG")
-        elei_img = backend.get_image("Mary.Elei.Nkata.jpeg")
-        dimitri_img = backend.get_image("Dimitri.Pierre-Louis.JPG")
-
-        return render_template("about.html", nasir_img=nasir_img, elei_img=elei_img, dimitri_img=dimitri_img)
+        nasir_img = b64encode(
+            backend.get_image("Nasir.Barnes.Headshot.JPG")).decode("utf-8")
+        elei_img = b64encode(
+            backend.get_image("Mary.Elei.Nkata.jpeg")).decode("utf-8")
+        dimitri_img = b64encode(
+            backend.get_image("Dimitri.Pierre-Louis.JPG")).decode("utf-8")
+        return render_template("about.html",
+                               nasir_img=nasir_img,
+                               elei_img=elei_img,
+                               dimitri_img=dimitri_img)
 
     @app.route("/signup")
     def signup():
@@ -81,7 +89,7 @@ def make_endpoints(app, login_manager):
         """
         return render_template("signup.html")
 
-    @app.route("/createaccount",  methods=['GET', 'POST'])
+    @app.route("/createaccount", methods=['GET', 'POST'])
     def createaccount():
         """Handles user account creation requests.
 
@@ -147,6 +155,7 @@ def make_endpoints(app, login_manager):
             data = data_file.read()
             upload_status = backend.upload(data, destination_blob)
 
-            return render_template('upload_result.html', upload_status = upload_status)
+            return render_template('upload_result.html',
+                                   upload_status=upload_status)
 
         return render_template('upload.html')
