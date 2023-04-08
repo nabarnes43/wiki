@@ -10,6 +10,7 @@ from .form import LoginForm
 from base64 import b64encode
 
 
+
 def make_endpoints(app, login_manager):
 
     @app.route("/")
@@ -143,6 +144,8 @@ def make_endpoints(app, login_manager):
                 return "Missing 'name' field in form"
         else:
             return render_template('search.html')
+
+    
 
     @app.route("/pages/<page_title>", methods=['GET'])
     def page_details(page_title):
