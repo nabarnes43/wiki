@@ -127,6 +127,23 @@ def make_endpoints(app, login_manager):
 
         return render_template('pages.html', page_titles=all_pages)
 
+    @app.route("/search", methods=['GET', 'POST'])
+    def search():
+        if request.method == 'POST':
+            if 'name' in request.form:
+                search_content = str(request.form['name'])
+                print(search_content)
+
+                #TODO use content to search backend for a list.
+                backend = Backend()
+                all_pages = backend.get_all_page_names()
+
+                return render_template('search.html', page_titles=all_pages)
+            else:
+                return "Missing 'name' field in form"
+        else:
+            return render_template('search.html')
+
     @app.route("/pages/<page_title>", methods=['GET'])
     def page_details(page_title):
         '''
