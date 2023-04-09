@@ -61,7 +61,7 @@ class Backend:
         except Exception as e:
             return f"Network error: {e}"
 
-    def upload(self, data, destination_blob_name):
+    def upload(self, data, destination_blob_name, override=False):
         '''
         Uploads page to Wiki server
 
@@ -82,12 +82,14 @@ class Backend:
         bucket = self.storage_client.bucket('sdswiki_contents')
 
         for blob in blobs:
-            if destination_blob_name == blob.name:
+            if destination_blob_name == blob.name and override == False:
                 return 'Upload failed. You cannot overrite an existing page'
 
         blob = bucket.blob(destination_blob_name)
         blob.upload_from_string(data)
 
+        if override:
+            return f"The page titled {destination_blob_name} was successfully updated."
         return f"{destination_blob_name} uploaded to Wiki."
 
     def sign_up(self, name, password):
