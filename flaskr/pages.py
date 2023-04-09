@@ -8,6 +8,8 @@ from .backend import Backend
 from .user import User
 from .form import LoginForm
 from base64 import b64encode
+from .search_algo import search_algo
+
 
 
 
@@ -128,12 +130,22 @@ def make_endpoints(app, login_manager):
 
         return render_template('pages.html', page_titles=all_pages)
 
+    @app.route("/pages/<page_title>", methods=['GET'])
+    def page_details(page_title):
+        '''
+        displays the details of the specific wiki page selected.
+        '''
+        backend = Backend()
+        page = backend.get_wiki_page(page_title)
+
+        return render_template('pages.html', page=page)
+
     @app.route("/search", methods=['GET', 'POST'])
     def search():
         if request.method == 'POST':
             if 'name' in request.form:
                 search_content = str(request.form['name'])
-                print(search_content)
+                print(search_algo(search_content))
 
                 #TODO use content to search backend for a list.
                 backend = Backend()
@@ -144,18 +156,6 @@ def make_endpoints(app, login_manager):
                 return "Missing 'name' field in form"
         else:
             return render_template('search.html')
-
-    
-
-    @app.route("/pages/<page_title>", methods=['GET'])
-    def page_details(page_title):
-        '''
-        displays the details of the specific wiki page selected.
-        '''
-        backend = Backend()
-        page = backend.get_wiki_page(page_title)
-
-        return render_template('pages.html', page=page)
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
