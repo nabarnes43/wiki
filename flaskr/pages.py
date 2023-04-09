@@ -178,6 +178,15 @@ def make_endpoints(app, login_manager):
         return render_template('upload.html')
 
     @app.route("/edit/<title>", methods=['GET'])
-    def edit(title):
-        content = ''
-        return render_template('edit.html', title = title, content = content)
+    def make_edit(title):
+        backend = Backend()
+        content = backend.get_wiki_page(title)
+        return render_template('edit.html', page_title = title, content = content)
+
+    @app.route("/save_edit/<page_title>", methods=['POST'])
+    def save_edit(page_title):
+        backend = Backend()
+        content = str(request.form['content'])
+        upload_status = backend.upload(content, page_title, True)
+
+        return render_template('upload_result.html', upload_status=upload_status)

@@ -64,7 +64,7 @@ class Backend:
         except Exception as e:
             return f"Error: {e}"
 
-    def upload(self, data, destination_blob_name):
+    def upload(self, data, destination_blob_name, override=False):
         '''
         Uploads page to Wiki server
 
@@ -88,6 +88,8 @@ class Backend:
         blob = self.pages_bucket.get_blob(destination_blob_name)
         blob.upload_from_string(data)
 
+        if override:
+            return f"The page titled {destination_blob_name} was successfully updated."
         return f"{destination_blob_name} uploaded to Wiki."
 
     def sign_up(self, name, password):
