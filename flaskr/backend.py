@@ -123,7 +123,7 @@ class Backend:
         Allows a person to sign into their wiki account.
 
         Args:
-            name = This acts as the username of the person
+            username = This acts as the username of the person
             password = The password associated with the account for the wiki
 
         Returns:
@@ -151,7 +151,7 @@ class Backend:
         Allows images to be pulled from the bucket and sent to the html pages. 
 
         Args:
-            name = This name of the picture
+            name = The name of the picture
 
         Returns:
             Binary form of the image reqested.
@@ -164,4 +164,10 @@ class Backend:
 
         return img
 
-
+    def delete_page(self, name):
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        for blob in blobs:
+            if blob.name == name:
+                blob.delete()
+                return True
+        return False

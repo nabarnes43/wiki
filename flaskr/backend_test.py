@@ -282,3 +282,24 @@ def test_get_image_successful():
 
     # assert the result
     assert result == content
+
+#Testing that pages are properly being deleted
+def test_delete_page():
+    #Setting up mock objects 
+    blob1 = MagicMock()
+    blob1.name = 'testPage'
+    storage_client = MagicMock()
+    storage_client.list_blobs.return_value = [blob1]
+   
+   #Deleting the testPage
+    backend = Backend(storage_client)
+    result = backend.delete_page('testPage')
+    
+    #Asserting that the page was deleted
+    assert result == True
+
+    #Trying to delete a page that doesn't exist
+    result2 = backend.delete_page('randompage565')
+    
+    #Asserting that false was returned ("Page not found ")
+    assert result2 == False
