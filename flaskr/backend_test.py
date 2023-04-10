@@ -301,5 +301,5 @@ def test_delete_page():
     #Trying to delete a page that doesn't exist
     result2 = backend.delete_page('randompage565')
     
-    #Asserting that false was returned ("Page not found ")
+    #Asserting that false was returned ("Page not found")
     assert result2 == False
