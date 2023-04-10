@@ -163,5 +163,3 @@ class Backend:
             img = f.read()
 
         return img
-
-

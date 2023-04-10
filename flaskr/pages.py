@@ -11,8 +11,6 @@ from base64 import b64encode
 from .search_algo import search_algo
 
 
-
-
 def make_endpoints(app, login_manager):
 
     @app.route("/")
