@@ -33,12 +33,11 @@ def test_about_page(client, monkeypatch):
     nasir_image_data = b"nasir image data"
     elei_image_data = b"elei image data"
     dimitri_image_data = b"dimitri image data"
-    
+
     def mock_get_image(self, name):
         return b''
-    
-    monkeypatch.setattr(Backend, 'get_image', mock_get_image)
 
+    monkeypatch.setattr(Backend, 'get_image', mock_get_image)
 
     response = client.get("/about")
     assert response.status_code == 200
@@ -65,7 +64,6 @@ def skip_test_create_account_succesful_page(client):
     WHEN the '/createaccount' page is posted with username and password
     THEN check that the response is successful and the username is displayed
     """
-
 
     response = client.post('/createaccount',
                            data=dict(Username='testuser',
