@@ -143,7 +143,10 @@ def make_endpoints(app, login_manager):
         if request.method == 'POST':
             if 'name' in request.form:
                 search_content = str(request.form['name'])
-                print(search_algo(search_content))
+
+                #The minimum relevance will be for 2 matching words.
+                relevance_score = 0.8955
+                print(search_algo(search_content, relevance_score))
 
                 #TODO use content to search backend for a list.
                 backend = Backend()
