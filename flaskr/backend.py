@@ -80,7 +80,7 @@ class Backend:
 
         if destination_blob_name == '':
             return 'Please provide the name of the page.'
-        
+
         blobs = self.storage_client.list_blobs('sdswiki_contents')
         bucket = self.storage_client.bucket('sdswiki_contents')
 
