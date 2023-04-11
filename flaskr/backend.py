@@ -40,7 +40,6 @@ class Backend:
         except Exception as e:
             return f"Error: {e}"
 
-
     def get_all_page_names(self):
         """Gets the names of all wiki pages.
 
@@ -216,13 +215,15 @@ class Backend:
                     else:
                         print(f"The blob does not have an author metadata.")
                         return None
-                        
+
                 except AttributeError:
                     print(f"The specified blob does not have any metadata.")
                     return None
-                        
+
                 except Exception as e:
-                    print(f"An error occurred while trying to retrieve the metadata: {e}")
+                    print(
+                        f"An error occurred while trying to retrieve the metadata: {e}"
+                    )
                     return None
             else:
                 print(f"The specified blob does not exist.")
@@ -233,5 +234,3 @@ class Backend:
 
         except Exception as e:
             return f"Network error: {e}"
-
-
