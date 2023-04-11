@@ -65,7 +65,6 @@ def test_get_wiki_page_network_error():
     assert result == "Network error: Network error"
 
 
-
 def test_get_all_page_names_success():
     """
     Test that getting all the wiki page names returns the expected list of names.

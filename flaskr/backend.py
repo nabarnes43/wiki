@@ -36,7 +36,6 @@ class Backend:
         except Exception as e:
             return f"Network error: {e}"
 
-
     def get_all_page_names(self):
         """Gets the names of all wiki pages.
 
@@ -61,7 +60,7 @@ class Backend:
         except Exception as e:
             return f"Network error: {e}"
 
-    #Need to upload some meta data a long with upload    
+    #Need to upload some meta data a long with upload
     def upload(self, data, destination_blob_name, username):
         '''
         Uploads page to Wiki server
@@ -74,7 +73,7 @@ class Backend:
             A response message stating if your upload was successful or not.
             If the upload was unsuccessulf, the reason why would be displayed.
         '''
-        
+
         if data == b'':
             return 'Please upload a file.'
         if destination_blob_name == '':
@@ -86,7 +85,6 @@ class Backend:
         for blob in blobs:
             if destination_blob_name == blob.name:
                 return 'Upload failed. You cannot overrite an existing page'
-
 
         blob = bucket.blob(destination_blob_name)
 
@@ -197,13 +195,15 @@ class Backend:
                     else:
                         print(f"The blob does not have an author metadata.")
                         return None
-                        
+
                 except AttributeError:
                     print(f"The specified blob does not have any metadata.")
                     return None
-                        
+
                 except Exception as e:
-                    print(f"An error occurred while trying to retrieve the metadata: {e}")
+                    print(
+                        f"An error occurred while trying to retrieve the metadata: {e}"
+                    )
                     return None
             else:
                 print(f"The specified blob does not exist.")
@@ -214,5 +214,3 @@ class Backend:
 
         except Exception as e:
             return f"Network error: {e}"
-
-
