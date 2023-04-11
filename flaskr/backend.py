@@ -73,11 +73,14 @@ class Backend:
             A response message stating if your upload was successful or not.
             If the upload was unsuccessulf, the reason why would be displayed.
         '''
-        if data == b'':
+        if data == b'' or data == '':
+            if override:
+                return 'You cannot delete all the contents of a pge. Please delete the page instead.'
             return 'Please upload a file.'
+
         if destination_blob_name == '':
             return 'Please provide the name of the page.'
-
+        
         blobs = self.storage_client.list_blobs('sdswiki_contents')
         bucket = self.storage_client.bucket('sdswiki_contents')
 

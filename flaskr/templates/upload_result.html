@@ -1,7 +1,11 @@
 {% extends "main.html" %}
 
 {% block page_name %}
-<h3>Success!</h3>
+{% if edit == True %}
+<h3>Result for editing {{page_title}}:</h3>
+{% else %}
+<h3>Result for uploading {{page_title}}:</h3>
+{% endif %}
 {% endblock %}
 
 {% block content %}
