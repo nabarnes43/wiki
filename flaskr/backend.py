@@ -76,13 +76,25 @@ class Backend:
             A response message stating if your upload was successful or not.
             If the upload was unsuccessulf, the reason why would be displayed.
         '''
-        if data == b'':
+        if data == b'' or data == '':
+            if override:
+                return 'You cannot delete all the contents of a pge. Please delete the page instead.'
             return 'Please upload a file.'
+
         if destination_blob_name == '':
             return 'Please provide the name of the page.'
+<<<<<<< HEAD
 
         for blob in self.pages_blobs:
             if destination_blob_name == blob.name:
+=======
+        
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        bucket = self.storage_client.bucket('sdswiki_contents')
+
+        for blob in blobs:
+            if destination_blob_name == blob.name and override == False:
+>>>>>>> fa96d70 (tested edit feature)
                 return 'Upload failed. You cannot overrite an existing page'
 
         blob = self.pages_bucket.get_blob(destination_blob_name)
