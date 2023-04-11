@@ -68,6 +68,9 @@ def skip_test_create_account_succesful_page(client):
     response = client.post('/createaccount',
                            data=dict(Username='testuser',
                                      Password='testpassword'))
+
+    print(response.data)
+
     assert response.status_code == 200
     assert b'testuser' in response.data
 
