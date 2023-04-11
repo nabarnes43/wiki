@@ -49,32 +49,29 @@ def test_get_wiki_successful(blob, bucket, storage_client, backend):
     assert result == content
 
 
-def test_get_wiki_page_blob_not_found():
+def test_get_wiki_page_not_found(blob, bucket, storage_client, backend):
     """
-    Test that getting a wiki page with an invalid name returns an error message.
+    Test that getting a non-existent wiki page returns the expected error message.
     """
     # Setup mock objects for the test
-    storage_client = MagicMock()
-    bucket = MagicMock()
     bucket.name = 'mock_bucket_name'
-    blob = MagicMock()
     blob.name = 'mock_name'
     blob.open.side_effect = exceptions.NotFound('Blob not found')
     bucket.get_blob.return_value = blob
     storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = None
 
     # Create a backend instance and call the method being tested
     backend = Backend(storage_client)
-    wiki_name = 'mock_wiki_name'
-    result = backend.get_wiki_page(wiki_name)
+    result = backend.get_wiki_page("non_existent_wiki")
 
     # Check that the expected error message is returned
-    assert result == f"Error: Wiki page {wiki_name} not found."
+    assert result == "Error: Wiki page non_existent_wiki not found."
 
 
 def test_get_wiki_page_error(blob, bucket, storage_client, backend):
     """
-    Test that getting a wiki page when there is a network error returns an error message.
+    Test that a network error is returned when there is a problem with the network.
     """
     # Setup mock objects for the test
     blob.open.side_effect = Exception("Network error")
@@ -85,7 +82,8 @@ def test_get_wiki_page_error(blob, bucket, storage_client, backend):
     result = backend.get_wiki_page(page_name)
 
     # Check that the expected error message is returned
-    assert result == expected_error_message
+    assert result == "Network error: Network error"
+
 
 
 def test_get_all_page_names_success():
@@ -158,7 +156,7 @@ def test_upload_existing_page():
     storage_client.list_blobs.return_value = [blob]
 
     backend = Backend(storage_client)
-    upload_result = backend.upload('random stuff', 'mock_name')
+    upload_result = backend.upload('random stuff', 'mock_name', 'username')
 
     assert upload_result == 'Upload failed. You cannot overrite an existing page'
 
@@ -168,7 +166,7 @@ def test_upload_no_page_name():
     Test error message displayed if no page name is provided.
     '''
     backend = Backend()
-    upload_result = backend.upload('random stuff', '')
+    upload_result = backend.upload('random stuff', '', 'username')
     assert upload_result == 'Please provide the name of the page.'
 
 
@@ -177,7 +175,7 @@ def test_upload_no_file():
     Test error message displayed if no data for the page is provided.
     '''
     backend = Backend()
-    upload_result = backend.upload(b'', 'mock_name')
+    upload_result = backend.upload(b'', 'mock_name', 'username')
     assert upload_result == 'Please upload a file.'
 
 
@@ -190,7 +188,7 @@ def test_successful_upload():
     storage_client.list_blobs.return_value = [blob]
 
     backend = Backend(storage_client)
-    upload_result = backend.upload('random stuff', 'mock_name')
+    upload_result = backend.upload('random stuff', 'mock_name', 'username')
     assert 'uploaded to Wiki.' in upload_result
 
 
@@ -202,7 +200,7 @@ def test_upload_to_empty_database():
     storage_client.list_blobs.return_value = []
 
     backend = Backend(storage_client)
-    upload_result = backend.upload('random stuff', 'mock_name')
+    upload_result = backend.upload('random stuff', 'mock_name', 'username')
     assert 'uploaded to Wiki.' in upload_result
 
 
@@ -326,3 +324,115 @@ def test_delete_page():
 
     #Asserting that false was returned ("Page not found")
     assert result2 == False
+def test_check_page_author_exists():
+    """
+    Test that the author name of a blob that exists and has an author metadata is correctly returned.
+    """
+    # Setup mock objects for the test
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+    author_name = "Test Author"
+    metadata = {'author': author_name}
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = blob
+    blob.metadata = metadata
+
+    # Create a backend instance and call the method being tested
+    backend = Backend(storage_client)
+    result = backend.check_page_author("test_page")
+
+    # Check that the expected author name is returned
+    assert result == author_name
+
+
+def test_check_page_author_no_author_metadata():
+    """
+    Test that None is returned when the blob exists but does not have an author metadata.
+    """
+    # Setup mock objects for the test
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+    metadata = {}
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = blob
+    blob.metadata = metadata
+
+    # Create a backend instance and call the method being tested
+    backend = Backend(storage_client)
+    result = backend.check_page_author("test_page")
+
+    # Check that None is returned
+    assert result is None
+
+
+def test_check_page_author_blob_does_not_exist():
+    """
+    Test that None is returned when the specified blob does not exist.
+    """
+    # Setup mock objects for the test
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = None
+
+    # Create a backend instance and call the method being tested
+    backend = Backend(storage_client)
+    result = backend.check_page_author("test_page")
+
+    # Check that None is returned
+    assert result is None
+
+
+def test_check_page_author_error_retrieving_metadata():
+    """
+    Test that None is returned and an error message is printed when an error occurs while retrieving metadata.
+    """
+    # Setup mock objects for the test
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = blob
+    blob.metadata = None
+
+    # Create a backend instance and call the method being tested
+    backend = Backend(storage_client)
+    with patch('builtins.print') as mock_print:
+        result = backend.check_page_author("test_page")
+
+    # Check that None is returned and an error message is printed
+    assert result is None
+    assert mock_print.call_count == 1
+
+
+def test_check_page_author_error_not_found():
+    """
+    Test that an error message is returned when the specified blob is not found.
+    """
+    # Setup mock objects for the test
+    storage_client = MagicMock()
+    storage_client.bucket.side_effect = exceptions.NotFound("Bucket not found.")
+
+    # Create a backend instance and call the method being tested
+    backend = Backend(storage_client)
+    result = backend.check_page_author("test_page")
+
+    # Check that the expected error message is returned
+    assert result == "Error: Wiki page test_page not found."
+
+
+def test_check_page_author_network_error():
+    """
+    Test that a network error message is returned when a network error occurs.
+    """
+    # Setup mock objects for the test
+    storage_client = MagicMock()
+    storage_client.bucket.side_effect = Exception("Network error.")
+
+    # Create a backend instance and call the method being tested
+    backend = Backend(storage_client)
+    result = backend.check_page_author("test_page")
+
+    # Check that the expected error message is

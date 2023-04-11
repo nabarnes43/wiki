@@ -188,8 +188,9 @@ def make_endpoints(app, login_manager):
             destination_blob = str(request.form['destination_blob'])
             data_file = request.files['data_file']
 
+
             data = data_file.read()
-            upload_status = backend.upload(data, destination_blob)
+            upload_status = backend.upload(data, destination_blob, current_user.get_id())
 
             return render_template('upload_result.html',
                                    upload_status=upload_status,
