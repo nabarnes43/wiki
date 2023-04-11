@@ -40,11 +40,8 @@ def search_algo(search_content, min_relevance_score):
         # scale relevance score by length of search
         relevance_score /= len(search_content)
 
-
-
         print('min relavance score' + str(min_relevance_score))
         print('relavance score' + str(relevance_score))
-
 
         if relevance_score <= min_relevance_score:
             search_results.append((page_title, relevance_score))
