@@ -286,6 +286,9 @@ def test_get_image_successful():
 
 #Testing that pages are properly being deleted
 def test_delete_page():
+     '''
+    Test that pages are properly deleted
+    '''
     #Setting up mock objects
     blob1 = MagicMock()
     blob1.name = 'testPage'
