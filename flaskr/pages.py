@@ -152,7 +152,7 @@ def make_endpoints(app, login_manager):
         backend = Backend()
         page = backend.get_wiki_page(page_title)
 
-        return render_template('pages.html', page=page)
+        return render_template('pages.html', page=page, page_title=page_title)
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
@@ -177,3 +177,67 @@ def make_endpoints(app, login_manager):
                                    upload_status=upload_status)
 
         return render_template('upload.html')
+
+    @app.route("/bookmark/<page_title>", methods=['GET'])
+    def bookmark(page_title):
+        '''
+        Allows users to bookmark a page. 
+
+        Args:
+            page_title = The name of the page to bookmark
+
+        Returns:
+            Render template with success or error message.
+        '''
+        backend = Backend()
+        page = backend.get_wiki_page(page_title)
+        if current_user.is_authenticated:
+            name = str(current_user.get_id())
+            backend.bookmark(page_title, name)
+            err = "Bookmark saved!"
+        else:
+            err = 'Must be signed in to bookmark!'
+
+        return render_template('pages.html',
+                               page=page,
+                               page_title=page_title,
+                               err=err)
+
+    @app.route("/bookmarks", methods=['GET'])
+    def view_bookmarks():
+        '''
+        Allows a user to view their bookmarks. 
+
+        Returns:
+            Render template of main if there are no bookmarks, or the bookmark page if there are bookmarks
+        '''
+        name = str(current_user.get_id())
+
+        backend = Backend()
+        existing_pages = backend.get_all_page_names()
+        all_bookmarks = backend.get_bookmarks(name, existing_pages)
+
+        if not all_bookmarks:
+            return render_template('main.html')
+
+        return render_template('bookmark.html', page_titles=all_bookmarks)
+
+    @app.route("/remove_bookmark/<title>", methods=['GET'])
+    def remove_bookmark(title):
+        '''
+        Allows a user to remove a bookmark. 
+
+        Args:
+            title = The name of the bookmark to remove
+
+        Returns:
+            bookmark page showing updated bookmarks
+        '''
+        backend = Backend()
+        name = str(current_user.get_id())
+
+        backend.remove_bookmark(title, name)
+        existing_pages = backend.get_all_page_names()
+        all_bookmarks = backend.get_bookmarks(name, existing_pages)
+
+        return render_template('bookmark.html', page_titles=all_bookmarks)

@@ -171,3 +171,97 @@ class Backend:
                 blob.delete()
                 return True
         return False
+
+    def bookmark(self, page_title, name):
+        '''
+        Stores a user's bookmark in a GCP blob
+
+        Args:
+            name = The name of the user's account
+            page_title = page to bookmark
+
+        Returns:
+            True for successful bookmarks, False otherwise
+        '''
+        bucket = self.storage_client.bucket('sds_bookmarks')
+        blob = bucket.get_blob(name)
+
+        #For first time bookmarks
+        if blob == None:
+            blob = bucket.blob(name)
+            blob.upload_from_string(page_title + '\n')
+            return True
+
+        #Adding bookmarks to existing blobs instead of overwritting data
+        with blob.open('r') as f:
+            bookmark_data = f.read()
+        if page_title not in bookmark_data:
+            bookmark_data += page_title + '\n'
+            blob.upload_from_string(bookmark_data)
+            return True
+        #Return false if bookmark already exists
+        return False
+
+    def get_bookmarks(self, name, existing_pages):
+        '''
+        Pulls a user's bookmarks from GCP Bucket and ensures all bookmarks are still valid
+
+        Args:
+            name = The name of the user's account
+            existing_pages = pages currently in the wiki
+
+        Returns:
+            list of bookmarks
+        '''
+        backend = Backend()
+        bookmarks_list = []
+        bucket = self.storage_client.bucket('sds_bookmarks')
+        blob = bucket.get_blob(name)
+
+        #Reading in bookmark data
+        with blob.open('r') as f:
+            bookmark_data = f.readlines()
+
+        #Ensuring all bookmarked pages are still active (in the wiki)
+        for line in bookmark_data:
+            line = line[:-1]
+            print(line)
+            if line not in existing_pages:
+                backend.remove_bookmark(line, name)
+                continue
+            bookmarks_list.append(line)
+
+        return bookmarks_list
+
+    def remove_bookmark(self, title, name):
+        '''
+        Rewrites a blob's data and skips over the line to remove 
+
+        Args:
+            name = The name of the user's account
+            title = bookmark to remove
+
+        Returns:
+            Success message or error message
+        '''
+        new_data = ""
+        deleted = False
+        bucket = self.storage_client.bucket('sds_bookmarks')
+        blob = bucket.get_blob(name)
+        title += '\n'
+        #Read in bookmark data
+        with blob.open('r') as f:
+            bookmark_data = f.readlines()
+        #Rewriting data but skipping over the line we're removing
+        for line in bookmark_data:
+            if line == title:
+                deleted = True
+                continue
+            new_data += line
+        #Upload new data
+        print(new_data)
+        blob.upload_from_string(new_data)
+        #Return success or error message
+        if deleted:
+            return 'Bookmark successfully deleted'
+        return 'Error'

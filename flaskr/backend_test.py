@@ -304,3 +304,118 @@ def test_delete_page():
 
     #Asserting that false was returned ("Page not found")
     assert result2 == False
+
+
+def test_bookmark_successful():
+    '''
+    Test that the bookmarks are properly stored.
+    '''
+    #mocking
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+
+    content = "Test Page"
+    storage_client.bucket.return_value = bucket
+    blob.name = 'Dimitripl5'
+    bucket.get_blob.return_value = blob
+    blob.open.return_value.__enter__.return_value.read.return_value = content
+
+    #function call
+    backend = Backend(storage_client)
+    result = backend.bookmark('Hello World', 'Dimitripl5')
+
+    #ensure successful bookmarks are stored
+    assert result == True
+
+
+def test_bookmark_unsuccessful():
+    '''
+    Test that unsuccessful bookmark attempts are caught.
+    '''
+    #mocking
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+
+    content = "Test Page"
+    storage_client.bucket.return_value = bucket
+    blob.name = 'Dimitripl5'
+    bucket.get_blob.return_value = blob
+    blob.open.return_value.__enter__.return_value.read.return_value = content
+
+    #function call
+    backend = Backend(storage_client)
+    result = backend.bookmark('Test Page', 'Dimitripl5')
+
+    #ensuring that bookmarks are not repeated
+    assert result == False
+
+
+def test_get_bookmarks():
+    '''
+    Test that all VALID bookmarks are being returned
+    '''
+    #Mocking
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+
+    content = ["Test Page\n"]
+    storage_client.bucket.return_value = bucket
+    blob.name = 'Dimitripl5'
+    bucket.get_blob.return_value = blob
+    blob.open.return_value.__enter__.return_value.readlines.return_value = content
+
+    #function call
+    backend = Backend(storage_client)
+    result = backend.get_bookmarks("Dimitripl5", ['Test Page', 'Hello World'])
+
+    #ensure only active/valid bookmarks are returned
+    assert result == ['Test Page']
+
+
+def test_remove_bookmark_successful():
+    '''
+    Test that bookmarks are successfully being removed.
+    '''
+    #mocking
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+
+    content = ["Test Page\n", "Expected"]
+    storage_client.bucket.return_value = bucket
+    blob.name = 'Dimitripl5'
+    bucket.get_blob.return_value = blob
+    blob.open.return_value.__enter__.return_value.readlines.return_value = content
+
+    #function call
+    backend = Backend(storage_client)
+    result = backend.remove_bookmark("Test Page", 'Dimitripl5')
+
+    #ensure bookmark is deleted
+    assert result == 'Bookmark successfully deleted'
+
+
+def test_remove_bookmark_unsuccessful():
+    '''
+    Test that error is returned when bookmark isn't properly removed
+    '''
+    #mocking
+    storage_client = MagicMock()
+    bucket = MagicMock()
+    blob = MagicMock()
+
+    content = ["Test Page\n", "Expected"]
+    storage_client.bucket.return_value = bucket
+    blob.name = 'Dimitripl5'
+    bucket.get_blob.return_value = blob
+    blob.open.return_value.__enter__.return_value.readlines.return_value = content
+
+    #function call
+    backend = Backend(storage_client)
+    result = backend.remove_bookmark("random547865", 'randompl5')
+
+    #Ensuring error is returned
+    assert result == 'Error'

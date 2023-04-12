@@ -1,7 +1,12 @@
 {% extends "main.html" %}
 
 {% block page_name %}
+{% if not page %}
 <h3>Pages contained in this Wiki</h3>
+{% endif %}
+{% if page %}
+<h3>{{page_title}}</h3>
+{% endif %}
 {% endblock %}
 
 {% block content %}
@@ -9,6 +14,17 @@
     {% for title in page_titles %}
     <li><a href = "/pages/{{title}}">{{title}}</a></li>
     {% endfor %}
+    {% if page %}
+    {% if err %}
+    <font color="Blue">  
+    {{err}}
+    </font>
+    <br>
+    {% endif %} 
+    <a href="/bookmark/{{page_title}}"><button type="button">Bookmark</button></a>    
+    <br>
+    {% endif %}  
     {{page}}
+    
 </ul>
 {% endblock %}

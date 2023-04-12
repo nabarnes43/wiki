@@ -215,3 +215,123 @@ def test_login_and_logout_successful(client, monkeypatch):
     #Test logout
     resp = client.get("/logout")
     assert b'Log In' in resp.data
+
+
+def test_bookmark(client, monkeypatch):
+    '''
+    Test that bookmark button is working properly and that log in is required. .
+    '''
+
+    #Setting mock objects
+    def mock_bookmark(self, page_title, name):
+        return True
+
+    def mock_sign_in(self, username, password):
+        return 'Sign In Successful'
+
+    def mock_get_wiki_page(self, name):
+        return "This is a test page"
+
+    monkeypatch.setattr(Backend, 'bookmark', mock_bookmark)
+    monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
+    monkeypatch.setattr(Backend, 'get_wiki_page', mock_get_wiki_page)
+
+    #Log in and going to bookmark route
+    resp = client.post('/login',
+                       data=dict(
+                           username='Dimitripl5',
+                           password='testing123',
+                       ))
+    resp = client.get('/pages/test')
+    resp = client.get('/bookmark/test')
+
+    #Ensuring bookmark was successful
+    assert resp.status_code == 200
+    assert b'Bookmark saved!' in resp.data
+
+    #Log out then back to bookmark route
+    resp = client.get("/logout")
+    resp = client.get('/pages/test')
+    resp = client.get('/bookmark/test')
+
+    #Ensuring that login is required
+    assert resp.status_code == 200
+    assert b'Must be signed in to bookmark!' in resp.data
+
+
+def test_view_bookmarks(client, monkeypatch):
+    '''
+    Test that bookmarks are able to properly be viewed.
+    '''
+
+    #mocking
+    def mock_get_bookmarks(self, name, existing_pages):
+        return ['Test Page', 'Hello World']
+
+    def mock_get_all_page_names(self):
+        return ['Test Page', 'Hello World']
+
+    def mock_sign_in(self, username, password):
+        return 'Sign In Successful'
+
+    monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
+    monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
+    monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
+
+    #login then go to bookmarks route
+    resp = client.post('/login',
+                       data=dict(
+                           username='Dimitripl5',
+                           password='testing123',
+                       ))
+    resp = client.get('/bookmarks')
+
+    #Ensure bookmarks are pulled up properly
+    assert resp.status_code == 200
+    assert b'Remove' in resp.data
+    assert b'Test Page' in resp.data
+    assert b'Hello World' in resp.data
+
+
+def test_remove_bookmark(client, monkeypatch):
+    '''
+    Test that remove bookmark button redirects back to bookmark page.
+    '''
+
+    #mocking
+    def mock_get_bookmarks(self, name, existing_pages):
+        bookmarks = ['Test Page', 'Hello World', 'Sucks']
+        for bookmark in bookmarks:
+            if bookmark not in existing_pages:
+                bookmarks.remove(bookmark)
+        return bookmarks
+
+    def mock_get_all_page_names(self):
+        return ['Test Page', 'Hello World']
+
+    def mock_remove_bookmark(self, title, name):
+        return "Bookmark successfully deleted"
+
+    def mock_sign_in(self, username, password):
+        return 'Sign In Successful'
+
+    monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
+    monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
+    monkeypatch.setattr(Backend, 'remove_bookmark', mock_remove_bookmark)
+    monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
+
+    #login then remove bookmark
+    resp = client.post('/login',
+                       data=dict(
+                           username='Dimitripl5',
+                           password='testing123',
+                       ))
+    resp = client.get('/remove_bookmark/Sucks')
+
+    #Ensure bookmarks are shown again and the right bookmark was removed
+    assert resp.status_code == 200
+    assert b'Bookmarks' in resp.data
+    assert b'Remove' in resp.data
+    assert b'Test Page' in resp.data
+    assert b'Hello World' in resp.data
+    assert b'Sucks' not in resp.data
