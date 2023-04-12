@@ -23,6 +23,10 @@ def levenshtein_distance(str1, str2):
 
 #Going to get the distance for each one and combine it into a list
 def search_algo(search_content, min_relevance_score):
+
+    if len(search_content) < 1:
+        return []
+
     min_relevance_score = min_relevance_score / len(search_content)
 
     search_results = []
@@ -48,4 +52,6 @@ def search_algo(search_content, min_relevance_score):
 
     search_results.sort(key=lambda x: x[1])
 
-    return search_results
+    page_titles = [result[0] for result in search_results]
+
+    return page_titles

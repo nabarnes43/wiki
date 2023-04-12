@@ -146,11 +146,9 @@ def make_endpoints(app, login_manager):
 
                 #The minimum relevance will be for 2 matching words.
                 relevance_score = 0.8955
-                print(search_algo(search_content, relevance_score))
 
-                #TODO use content to search backend for a list.
-                backend = Backend()
-                all_pages = backend.get_all_page_names()
+                all_pages = search_algo(search_content, relevance_score)
+                print(all_pages)
 
                 return render_template('search.html', page_titles=all_pages)
             else:
