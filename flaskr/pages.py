@@ -8,6 +8,7 @@ from .backend import Backend
 from .user import User
 from .form import LoginForm
 from base64 import b64encode
+from .search_algo import search_algo
 
 
 def make_endpoints(app, login_manager):
@@ -127,23 +128,6 @@ def make_endpoints(app, login_manager):
 
         return render_template('pages.html', page_titles=all_pages)
 
-    @app.route("/search", methods=['GET', 'POST'])
-    def search():
-        if request.method == 'POST':
-            if 'name' in request.form:
-                search_content = str(request.form['name'])
-                print(search_content)
-
-                #TODO use content to search backend for a list.
-                backend = Backend()
-                all_pages = backend.get_all_page_names()
-
-                return render_template('search.html', page_titles=all_pages)
-            else:
-                return "Missing 'name' field in form"
-        else:
-            return render_template('search.html')
-
     @app.route("/pages/<page_title>", methods=['GET'])
     def page_details(page_title):
         '''
@@ -153,6 +137,24 @@ def make_endpoints(app, login_manager):
         page = backend.get_wiki_page(page_title)
 
         return render_template('pages.html', page=page)
+
+    @app.route("/search", methods=['GET', 'POST'])
+    def search():
+        if request.method == 'POST':
+            if 'name' in request.form:
+                search_content = str(request.form['name'])
+
+                #The minimum relevance will be for 2 matching words.
+                relevance_score = 0.8955
+
+                all_pages = search_algo(search_content, relevance_score)
+                print(all_pages)
+
+                return render_template('search.html', page_titles=all_pages)
+            else:
+                return "Missing 'name' field in form"
+        else:
+            return render_template('search.html')
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
