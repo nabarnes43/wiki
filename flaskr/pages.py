@@ -218,3 +218,8 @@ def make_endpoints(app, login_manager):
                                edit=True,
                                name=current_user.name,
                                page_title=page_title)
+    @app.route("/delete/<page_title>", methods=['GET'])
+    def delete_page(page_title):
+        # backend = Backend()
+        # deleted = backend.delete_page(page_title)
+        return render_template('delete.html', page_title=page_title, name=current_user.name, deleted = False)

@@ -43,7 +43,8 @@
         <button>Options</button>
         <div class="dropdown-content">
         <a href="/edit/{{title}}">Edit</a>
-        <a href="/">Delete</a>
+        <a onclick="confirmation()">Delete</a>
+
         {% endif %}
 
         {% if isAuthor == False %}
@@ -51,6 +52,17 @@
         <div class="dropdown-content">
         <a href="/">Report</a>
         {% endif %}
+        <script>
+            function confirmation() {
+              let text = "Are you sure you want to delete this page?";
+              if (confirm(text) == true) {
+                location.href = "/delete/{{title}}";
+              } else {
+                location.href = "/pages/{{title}}";
+              }
+              document.getElementById("demo").innerHTML = text;
+            }
+        </script>
         </div>
       </div>
 </ul>
