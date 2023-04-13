@@ -60,8 +60,7 @@ class Backend:
         except Exception as e:
             return f"Network error: {e}"
 
-    #Need to upload some meta data a long with upload
-    def upload(self, data, destination_blob_name, username):
+    def upload(self, data, destination_blob_name, username, override=False):
         '''
         Uploads page to Wiki server
 
@@ -74,8 +73,11 @@ class Backend:
             If the upload was unsuccessulf, the reason why would be displayed.
         '''
 
-        if data == b'':
+        if data == b'' or data == '':
+            if override:
+                return 'You cannot delete all the contents of a pge. Please delete the page instead.'
             return 'Please upload a file.'
+
         if destination_blob_name == '':
             return 'Please provide the name of the page.'
 
@@ -83,7 +85,7 @@ class Backend:
         bucket = self.storage_client.bucket('sdswiki_contents')
 
         for blob in blobs:
-            if destination_blob_name == blob.name:
+            if destination_blob_name == blob.name and override == False:
                 return 'Upload failed. You cannot overrite an existing page'
 
         blob = bucket.blob(destination_blob_name)
@@ -93,6 +95,8 @@ class Backend:
 
         blob.upload_from_string(data)
 
+        if override:
+            return f"The page titled {destination_blob_name} was successfully updated."
         return f"{destination_blob_name} uploaded to Wiki."
 
     def sign_up(self, name, password):

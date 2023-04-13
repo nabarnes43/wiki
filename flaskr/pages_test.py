@@ -1,5 +1,8 @@
 from flaskr import create_app
 from .backend import Backend
+from unittest.mock import patch
+from unittest.mock import MagicMock
+from unittest import mock
 import pytest
 import io
 
@@ -140,9 +143,12 @@ def test_specific_page(client):
     '''
     resp = client.get("/pages/page_test")
     assert resp.status_code == 200
+    assert b'page_test' in resp.data
 
 
-def test_upload_page(client):
+@patch("flaskr.backend.Backend.upload", return_value=b"upload sucessful")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_upload_page(mock_upload, mock_logged_in, client):
     '''
     Test that the upload page displays correctly when called.
     '''
@@ -212,3 +218,26 @@ def test_login_and_logout_successful(client, monkeypatch):
     #Test logout
     resp = client.get("/logout")
     assert b'Log In' in resp.data
+
+
+# Test that page contents in editable text box is displayed when edit is clicked
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_edit(mock_get_wiki_page, mock_logged_in, client):
+    # Test edit page
+    resp = client.get('/edit/sample page title')
+    assert resp.status_code == 200
+    assert b'Make your edits' in resp.data
+    assert b'sample page title' in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test edit is saved
+@patch("flaskr.backend.Backend.upload", return_value=b"upload sucessful")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_save_edit(mock_upload, mock_logged_in, client):
+    resp = client.post('/save_edit/sample page',
+                       data={'content': 'random data'})
+    assert b'Result for editing' in resp.data
+    assert b'sample page' in resp.data

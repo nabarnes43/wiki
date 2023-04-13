@@ -29,7 +29,7 @@ def make_endpoints(app, login_manager):
             return render_template("main.html", name=current_user.name)
         return render_template("main.html")
 
-    #Allowing users to login, users are directed back to the home page after successful logins
+    # Allowing users to login, users are directed back to the home page after successful logins
     @app.route("/login", methods=['GET', 'POST'])
     def sign_in():
         backend = Backend()
@@ -48,12 +48,12 @@ def make_endpoints(app, login_manager):
                 return "The username is incorrect"
         return render_template('login.html', form=form, user=current_user)
 
-    #Loads the user (used by flask login)
+    # Loads the user (used by flask login)
     @login_manager.user_loader
     def load_user(user_id):
         return User(user_id)
 
-    #Allowing users to logout, login is required before this can be used
+    # Allowing users to logout, login is required before this can be used
     @app.route("/logout", methods=['POST', 'GET'])
     @login_required
     def logout():
@@ -76,6 +76,12 @@ def make_endpoints(app, login_manager):
             backend.get_image("Mary.Elei.Nkata.jpeg")).decode("utf-8")
         dimitri_img = b64encode(
             backend.get_image("Dimitri.Pierre-Louis.JPG")).decode("utf-8")
+        if current_user.is_authenticated:
+            return render_template("about.html",
+                                   name=current_user.name,
+                                   nasir_img=nasir_img,
+                                   elei_img=elei_img,
+                                   dimitri_img=dimitri_img)
         return render_template("about.html",
                                nasir_img=nasir_img,
                                elei_img=elei_img,
@@ -125,6 +131,10 @@ def make_endpoints(app, login_manager):
         '''
         backend = Backend()
         all_pages = backend.get_all_page_names()
+        if current_user.is_authenticated:
+            return render_template('pages.html',
+                                   page_titles=all_pages,
+                                   name=current_user.name)
 
         return render_template('pages.html', page_titles=all_pages)
 
@@ -136,10 +146,20 @@ def make_endpoints(app, login_manager):
         backend = Backend()
 
         page = backend.get_wiki_page(page_title)
-
         author = backend.check_page_author(page_title)
+        if current_user.is_authenticated:
+            name = current_user.name
+            isAuthor = True if name == author else False
+            return render_template('pageDetails.html',
+                                   isAuthor=isAuthor,
+                                   title=page_title,
+                                   page=page,
+                                   name=name, author = author)
 
-        return render_template('pages.html', page=page, author=author)
+        return render_template('pageDetails.html',
+                               isAuthor=False,
+                               title=page_title,
+                               page=page, author=author)
 
     @app.route("/search", methods=['GET', 'POST'])
     def search():
@@ -179,6 +199,29 @@ def make_endpoints(app, login_manager):
                                            current_user.get_id())
 
             return render_template('upload_result.html',
-                                   upload_status=upload_status)
+                                   upload_status=upload_status,
+                                   page_title=destination_blob,
+                                   name=current_user.name)
 
-        return render_template('upload.html')
+        return render_template('upload.html', name=current_user.name)
+
+    @app.route("/edit/<title>", methods=['GET'])
+    def make_edit(title):
+        backend = Backend()
+        content = backend.get_wiki_page(title)
+        return render_template('edit.html',
+                               page_title=title,
+                               content=content,
+                               name=current_user.name)
+
+    @app.route("/save_edit/<page_title>", methods=['POST'])
+    def save_edit(page_title):
+        backend = Backend()
+        content = str(request.form['content'])
+        upload_status = backend.upload(content, page_title, True)
+
+        return render_template('upload_result.html',
+                               upload_status=upload_status,
+                               edit=True,
+                               name=current_user.name,
+                               page_title=page_title)

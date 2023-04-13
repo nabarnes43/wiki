@@ -5,20 +5,9 @@
 {% endblock %}
 
 {% block content %}
-    <ul>
-        {% for title in page_titles %}
-        <li><a href = "/pages/{{title}}">{{title}}</a></li>
-        {% endfor %}
-        {{page}}
-    </ul>
-
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
-    {% if author %}
-        <p>Author: {{author}}</p>
-    {% endif %}
+<ul>
+    {% for title in page_titles %}
+    <li><a href = "/pages/{{title}}">{{title}}</a></li>
+    {% endfor %}
+</ul>
 {% endblock %}
