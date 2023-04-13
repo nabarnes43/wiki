@@ -32,14 +32,18 @@ def test_home_page(client):
     assert b"This wiki is dedicated to providing information and insight into the lives and works of the most influential and notable people in the field of computer science. From pioneers of computer programming and artificial intelligence to modern-day innovators in cybersecurity and machine learning, this wiki seeks to showcase the incredible contributions made by these individuals to the world of computer science." in resp.data
 
 
-def skip_test_about_page(client):
-    """
-    Test that the about page loads successfully and contains the expected content.
-    """
-    resp = client.get("/about")
-    assert resp.status_code == 200
-    assert b"<h1>About This Wiki</h1>" in resp.data
-    assert b"<h3>Your Authors</h3>" in resp.data
+def skip_test_about_page(client, monkeypatch):
+
+    def mock_get_image(self, name):
+        return b''
+
+    monkeypatch.setattr(Backend, 'get_image', mock_get_image)
+
+    response = client.get("/about")
+    assert response.status_code == 200
+    assert b"<h1>About This Wiki</h1>" in response.data
+    assert b"<h3>Your Authors</h3>" in response.data
+    assert b'' in response.data
 
 
 def test_signup_page(client):
@@ -60,6 +64,7 @@ def skip_test_create_account_succesful_page(client):
     WHEN the '/createaccount' page is posted with username and password
     THEN check that the response is successful and the username is displayed
     """
+
     response = client.post('/createaccount',
                            data=dict(Username='testuser',
                                      Password='testpassword'))
@@ -123,7 +128,9 @@ def test_create_account_exception(client, monkeypatch):
     assert b'Account creation failed: Test exception' in response.data
 
 
-def test_pages_list(client):
+@patch("flaskr.backend.Backend.get_all_page_names",
+       return_value=['Trial page 1', 'Trial page 2'])
+def test_pages_list(mock_get_all_page_names, client):
     '''
     Test that it displays all the pagas available for view on the wiki.
     '''
@@ -132,7 +139,9 @@ def test_pages_list(client):
     assert b'Pages contained in this Wiki' in resp.data
 
 
-def test_specific_page(client):
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+def test_specific_page(mock_get_wiki_page, client):
     '''
     Test that specific page can be called to display.
     '''

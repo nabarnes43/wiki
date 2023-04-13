@@ -8,6 +8,7 @@ from .backend import Backend
 from .user import User
 from .form import LoginForm
 from base64 import b64encode
+from .search_algo import search_algo
 
 
 def make_endpoints(app, login_manager):
@@ -68,6 +69,7 @@ def make_endpoints(app, login_manager):
             The rendered about page with headshot images of the team members.
         """
         backend = Backend()
+        print(f"backend.get_image = {backend.get_image}")  # Add this line
         nasir_img = b64encode(
             backend.get_image("Nasir.Barnes.Headshot.JPG")).decode("utf-8")
         elei_img = b64encode(
@@ -142,18 +144,41 @@ def make_endpoints(app, login_manager):
         displays the details of the specific wiki page selected.
         '''
         backend = Backend()
+
         page = backend.get_wiki_page(page_title)
+        author = backend.check_page_author(page_title)
         if current_user.is_authenticated:
+            name = current_user.name
+            isAuthor = True if name == author else False
             return render_template('pageDetails.html',
-                                   isAuthor=True,
+                                   isAuthor=isAuthor,
                                    title=page_title,
                                    page=page,
-                                   name=current_user.name)
+                                   name=name,
+                                   author=author)
 
         return render_template('pageDetails.html',
                                isAuthor=False,
                                title=page_title,
-                               page=page)
+                               page=page,
+                               author=author)
+
+    @app.route("/search", methods=['GET', 'POST'])
+    def search():
+        if request.method == 'POST':
+            if 'name' in request.form:
+                search_content = str(request.form['name'])
+                print(search_algo(search_content))
+
+                #TODO use content to search backend for a list.
+                backend = Backend()
+                all_pages = backend.get_all_page_names()
+
+                return render_template('search.html', page_titles=all_pages)
+            else:
+                return "Missing 'name' field in form"
+        else:
+            return render_template('search.html')
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
@@ -172,7 +197,8 @@ def make_endpoints(app, login_manager):
             data_file = request.files['data_file']
 
             data = data_file.read()
-            upload_status = backend.upload(data, destination_blob)
+            upload_status = backend.upload(data, destination_blob,
+                                           current_user.get_id())
 
             return render_template('upload_result.html',
                                    upload_status=upload_status,
