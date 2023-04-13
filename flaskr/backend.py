@@ -99,6 +99,22 @@ class Backend:
             return f"The page titled {destination_blob_name} was successfully updated."
         return f"{destination_blob_name} uploaded to Wiki."
 
+    def report(self, page, message):
+        if message == '':
+            return 'You need to enter a message'
+        bucket = self.storage_client.bucket('sds_reports')
+        blobs = self.storage_client.list_blobs('sds_reports')
+        existing_blob = False
+        for blob in blobs:
+            if blob == page:
+                blob = bucket.get_blob(page)
+                existing_blob = True
+        if not existing_blob:
+            blob = bucket.blob(page)
+
+        blob.upload_from_string(message)
+        return "Your report was sent successfully."
+
     def sign_up(self, name, password):
         '''
         Allows a person to create an account on the wiki if they are using it for the first time.

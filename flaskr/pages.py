@@ -220,7 +220,7 @@ def make_endpoints(app, login_manager):
     def save_edit(page_title):
         backend = Backend()
         content = str(request.form['content'])
-        upload_status = backend.upload(content, page_title, True)
+        upload_status = backend.upload(content, page_title, current_user.name, True)
 
         return render_template('upload_result.html',
                                upload_status=upload_status,
@@ -236,3 +236,15 @@ def make_endpoints(app, login_manager):
                                page_title=page_title,
                                name=current_user.name,
                                deleted=False)
+
+    @app.route("/report/<page_title>", methods=['GET'])
+    def report(page_title):
+        return render_template('report.html', page_title = page_title)
+
+    @app.route("/save_report/<page_title>", methods=['POST'])
+    def save_report(page_title):
+        backend = Backend()
+        message = str(request.form['report'])
+        report_result = backend.report(page_title, message)
+        return render_template('upload_result.html', report = True, upload_status = report_result)
+        
