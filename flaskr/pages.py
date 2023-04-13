@@ -136,6 +136,31 @@ def make_endpoints(app, login_manager):
 
         return render_template('pages.html', page_titles=all_pages)
 
+    @app.route("/pages/<page_title>", methods=['GET'])
+    def page_details(page_title):
+        '''
+        displays the details of the specific wiki page selected.
+        '''
+        backend = Backend()
+
+        page = backend.get_wiki_page(page_title)
+        author = backend.check_page_author(page_title)
+        if current_user.is_authenticated:
+            name = current_user.name
+            isAuthor = True if name == author else False
+            return render_template('pageDetails.html',
+                                   isAuthor=isAuthor,
+                                   title=page_title,
+                                   page=page,
+                                   name=name,
+                                   author=author)
+
+        return render_template('pageDetails.html',
+                               isAuthor=False,
+                               title=page_title,
+                               page=page,
+                               author=author)
+
     @app.route("/search", methods=['GET', 'POST'])
     def search():
         if request.method == 'POST':
@@ -152,25 +177,6 @@ def make_endpoints(app, login_manager):
                 return "Missing 'name' field in form"
         else:
             return render_template('search.html')
-
-    @app.route("/pages/<page_title>", methods=['GET'])
-    def page_details(page_title):
-        '''
-        displays the details of the specific wiki page selected.
-        '''
-        backend = Backend()
-        page = backend.get_wiki_page(page_title)
-        if current_user.is_authenticated:
-            return render_template('pageDetails.html',
-                                   isAuthor=True,
-                                   title=page_title,
-                                   page=page,
-                                   name=current_user.name)
-
-        return render_template('pageDetails.html',
-                               isAuthor=False,
-                               title=page_title,
-                               page=page)
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
