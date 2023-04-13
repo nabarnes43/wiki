@@ -129,7 +129,9 @@ def test_create_account_exception(client, monkeypatch):
     assert b'Account creation failed: Test exception' in response.data
 
 
-def test_pages_list(client):
+@patch("flaskr.backend.Backend.get_all_page_names",
+       return_value=['Trial page 1', 'Trial page 2'])
+def test_pages_list(mock_get_all_page_names, client):
     '''
     Test that it displays all the pagas available for view on the wiki.
     '''
@@ -138,7 +140,9 @@ def test_pages_list(client):
     assert b'Pages contained in this Wiki' in resp.data
 
 
-def test_specific_page(client):
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+def test_specific_page(mock_get_wiki_page, client):
     '''
     Test that specific page can be called to display.
     '''
