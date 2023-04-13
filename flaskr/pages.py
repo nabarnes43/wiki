@@ -154,12 +154,14 @@ def make_endpoints(app, login_manager):
                                    isAuthor=isAuthor,
                                    title=page_title,
                                    page=page,
-                                   name=name, author = author)
+                                   name=name,
+                                   author=author)
 
         return render_template('pageDetails.html',
                                isAuthor=False,
                                title=page_title,
-                               page=page, author=author)
+                               page=page,
+                               author=author)
 
     @app.route("/search", methods=['GET', 'POST'])
     def search():
