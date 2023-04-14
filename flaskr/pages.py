@@ -4,11 +4,11 @@ from flask import Flask, flash
 from flask import render_template
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import request
+from .search_algo import search_pages
 from .backend import Backend
 from .user import User
 from .form import LoginForm
 from base64 import b64encode
-from .search_algo import search_algo
 
 
 def make_endpoints(app, login_manager):
@@ -147,15 +147,17 @@ def make_endpoints(app, login_manager):
                 #The minimum relevance will be for 2 matching words.
                 relevance_score = 0.8955
 
-                all_pages = search_algo(search_content, relevance_score)
-                print(all_pages)
+                all_pages = search_pages(search_content, relevance_score)
 
-                return render_template('search.html', page_titles=all_pages)
+                num_results = len(all_pages)
+
+                return render_template('search.html', page_titles=all_pages,  num_results = num_results, search_content=search_content)
             else:
                 return "Missing 'name' field in form"
         else:
-            return render_template('search.html')
+            return render_template('search.html', page_titles=[],  num_results = -1, search_content="")
 
+            
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
         '''

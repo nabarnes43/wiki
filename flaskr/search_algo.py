@@ -1,4 +1,5 @@
 from .backend import Backend
+from typing import Callable
 
 
 #normalized distance for different
@@ -22,7 +23,8 @@ def levenshtein_distance(str1, str2):
 
 
 #Going to get the distance for each one and combine it into a list
-def search_algo(search_content, min_relevance_score):
+def search_pages(search_content, min_relevance_score, search_func: Callable = None):
+    print("search_algo.py imported")
 
     if len(search_content) < 1:
         return []
