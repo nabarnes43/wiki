@@ -3,9 +3,6 @@ from .backend import Backend
 import pytest
 import io
 
-
-# See https://flask.palletsprojects.com/en/2.2.x/testing/
-# for more info on testing
 @pytest.fixture
 def app():
     app = create_app({
@@ -169,7 +166,7 @@ def test_login_page(client):
 def test_login_wrong_username(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return "Username not found"
+        return False
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
@@ -178,14 +175,14 @@ def test_login_wrong_username(client, monkeypatch):
                            'password': 'testing123',
                        })
     assert resp.status_code == 200
-    assert b'The username is incorrect' in resp.data
+    assert b"Incorrect password or username" in resp.data
 
 
 #Testing that users are sent to the right page when the wrong password is entered
 def test_login_wrong_password(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return 'Incorrect Password'
+        return False
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
@@ -194,14 +191,14 @@ def test_login_wrong_password(client, monkeypatch):
                            'password': 'testing76576',
                        })
     assert resp.status_code == 200
-    assert b'An incorrect password was entered' in resp.data
+    assert b"Incorrect password or username" in resp.data
 
 
 #Testing that users are able to login and logout successfully
 def test_login_and_logout_successful(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return 'Sign In Successful'
+        return True
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
