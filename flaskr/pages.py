@@ -230,12 +230,12 @@ def make_endpoints(app, login_manager):
 
     @app.route("/delete/<page_title>", methods=['GET'])
     def delete_page(page_title):
-        # backend = Backend()
-        # deleted = backend.delete_page(page_title)
+        backend = Backend()
+        deleted = backend.delete_page(page_title)
         return render_template('delete.html',
                                page_title=page_title,
                                name=current_user.name,
-                               deleted=False)
+                               deleted=deleted)
 
     @app.route("/report/<page_title>", methods=['GET'])
     def report(page_title):
