@@ -213,7 +213,6 @@ class Backend:
         Returns:
             list of bookmarks
         '''
-        backend = Backend()
         bookmarks_list = []
         bucket = self.storage_client.bucket('sds_bookmarks')
         blob = bucket.get_blob(name)
@@ -227,7 +226,7 @@ class Backend:
             line = line[:-1]
             print(line)
             if line not in existing_pages:
-                backend.remove_bookmark(line, name)
+                self.remove_bookmark(line, name)
                 continue
             bookmarks_list.append(line)
 
