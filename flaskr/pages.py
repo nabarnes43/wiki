@@ -240,7 +240,9 @@ def make_endpoints(app, login_manager):
 
     @app.route("/report/<page_title>", methods=['GET'])
     def report(page_title):
-        return render_template('report.html', page_title=page_title)
+        return render_template('report.html',
+                               page_title=page_title,
+                               name=current_user.name)
 
     @app.route("/save_report/<page_title>", methods=['POST'])
     def save_report(page_title):
@@ -249,4 +251,5 @@ def make_endpoints(app, login_manager):
         report_result = backend.report(page_title, message)
         return render_template('upload_result.html',
                                report=True,
-                               upload_status=report_result)
+                               upload_status=report_result,
+                               name=current_user.name)
