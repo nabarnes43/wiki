@@ -14,7 +14,7 @@ class Backend:
         self.images_bucket = self.storage_client.bucket('sdsimages')
         self.pages_blobs = self.storage_client.list_blobs('sdswiki_contents')
         self.users_blobs = self.storage_client.list_blobs('sdsusers_passwords')
-       
+
     def get_wiki_page(self, name):
         """Gets the contents of the specified wiki page.
 
@@ -39,7 +39,6 @@ class Backend:
 
         except Exception as e:
             return f"Error: {e}"
-
 
     def get_all_page_names(self):
         """Gets the names of all wiki pages.

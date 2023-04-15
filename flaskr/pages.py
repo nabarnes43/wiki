@@ -40,7 +40,10 @@ def make_endpoints(app, login_manager):
                 return render_template('main.html', name=current_user.name)
             elif not status:
                 err = "Incorrect password or username"
-                return render_template('login.html', form=form, user=current_user, err = err)
+                return render_template('login.html',
+                                       form=form,
+                                       user=current_user,
+                                       err=err)
         return render_template('login.html', form=form, user=current_user)
 
     #Loads the user (used by flask login)

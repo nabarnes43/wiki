@@ -5,27 +5,32 @@ from google.cloud import exceptions
 from unittest.mock import patch
 import pytest
 
+
 @pytest.fixture
 def blob():
     mock_blob = MagicMock()
     return mock_blob
 
-@pytest.fixture 
+
+@pytest.fixture
 def bucket(blob):
     mock_bucket = MagicMock()
     mock_bucket.get_blob.return_value = blob
     return mock_bucket
 
-@pytest.fixture 
+
+@pytest.fixture
 def storage_client(bucket):
     mock_client = MagicMock()
     mock_client.bucket.return_value = bucket
     return mock_client
 
+
 @pytest.fixture
 def backend(storage_client):
     real_backend = Backend(storage_client)
     return real_backend
+
 
 def test_get_wiki_successful(blob, bucket, storage_client, backend):
     """
@@ -65,7 +70,8 @@ def test_get_wiki_page_blob_not_found():
 
     # Check that the expected error message is returned
     assert result == f"Error: Wiki page {wiki_name} not found."
-  
+
+
 def test_get_wiki_page_error(blob, bucket, storage_client, backend):
     """
     Test that getting a wiki page when there is a network error returns an error message.
@@ -80,6 +86,7 @@ def test_get_wiki_page_error(blob, bucket, storage_client, backend):
 
     # Check that the expected error message is returned
     assert result == expected_error_message
+
 
 def test_get_all_page_names_success():
     """

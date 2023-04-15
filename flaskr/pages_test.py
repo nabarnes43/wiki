@@ -3,6 +3,7 @@ from .backend import Backend
 import pytest
 import io
 
+
 @pytest.fixture
 def app():
     app = create_app({

@@ -6,6 +6,7 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 
+
 def create_app(test_config=None):
     # Create and configure the app.
     app = Flask(__name__, instance_relative_config=True)
@@ -24,7 +25,7 @@ def create_app(test_config=None):
     else:
         # Load the test config if passed in.
         app.config.from_mapping(test_config)
-        
+
     pages.make_endpoints(app, login_manager)
     login_manager.init_app(app)
     app.config['WTF_CSRF_ENABLED'] = False
