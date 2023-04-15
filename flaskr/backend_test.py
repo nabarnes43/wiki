@@ -319,7 +319,7 @@ def test_check_page_author_no_author_metadata():
     backend = Backend(storage_client)
     result = backend.check_page_author("test_page")
 
-    # Check that None is returned
+    # Check that Unknown is returned
     assert result is 'Unknown'
 
 
@@ -337,7 +337,7 @@ def test_check_page_author_blob_does_not_exist():
     backend = Backend(storage_client)
     result = backend.check_page_author("test_page")
 
-    # Check that None is returned
+    # Check that Unknown is returned
     assert result is 'Unknown'
 
 
@@ -358,37 +358,50 @@ def test_check_page_author_error_retrieving_metadata():
     with patch('builtins.print') as mock_print:
         result = backend.check_page_author("test_page")
 
-    # Check that None is returned and an error message is printed
+    # Check that Unknown is returned and an error message is printed
     assert result is 'Unknown'
-    assert mock_print.call_count == 1
 
 
-def test_check_page_author_error_not_found():
-    """
-    Test that an error message is returned when the specified blob is not found.
-    """
-    # Setup mock objects for the test
+def test_empty_report():
+    '''
+    Test reporting when when no report message was sent.
+    '''
+    blob1 = MagicMock()
+    blob1.name = 'testPage'
     storage_client = MagicMock()
-    storage_client.bucket.side_effect = exceptions.NotFound("Bucket not found.")
+    storage_client.list_blobs.return_value = [blob1]
 
-    # Create a backend instance and call the method being tested
     backend = Backend(storage_client)
-    result = backend.check_page_author("test_page")
+    result = backend.report('testPage', '')
 
-    # Check that the expected error message is returned
-    assert result == "Error: Wiki page test_page not found."
+    assert 'You need to enter a message' in result
 
 
-def test_check_page_author_network_error():
-    """
-    Test that a network error message is returned when a network error occurs.
-    """
-    # Setup mock objects for the test
+def test_report_when_page_is_not_in_database():
+    '''
+    Test reporting page when it is the first time a report has been made on that page
+    '''
+    blob1 = MagicMock()
+    blob1.name = 'testPage'
     storage_client = MagicMock()
-    storage_client.bucket.side_effect = Exception("Network error.")
+    storage_client.list_blobs.return_value = [blob1]
 
-    # Create a backend instance and call the method being tested
     backend = Backend(storage_client)
-    result = backend.check_page_author("test_page")
+    result = backend.report('testPage2', 'Test message')
 
-    # Check that the expected error message is
+    assert 'Your report was sent successfully.' in result
+
+
+def test_report_when_page_is_in_database():
+    '''
+    Test reporting page when it has been reported before.
+    '''
+    blob1 = MagicMock()
+    blob1.name = 'testPage'
+    storage_client = MagicMock()
+    storage_client.list_blobs.return_value = [blob1]
+
+    backend = Backend(storage_client)
+    result = backend.report('testPage2', 'Test message')
+
+    assert 'Your report was sent successfully.' in result

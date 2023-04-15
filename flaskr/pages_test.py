@@ -141,13 +141,15 @@ def test_pages_list(mock_get_all_page_names, client):
 
 @patch("flaskr.backend.Backend.get_wiki_page",
        return_value=b"sample page content")
-def test_specific_page(mock_get_wiki_page, client):
+@patch("flaskr.backend.Backend.check_page_author", return_value=b"fake author")
+def test_specific_page(mock_get_wiki_page, mock_check_page_author, client):
     '''
     Test that specific page can be called to display.
     '''
     resp = client.get("/pages/page_test")
     assert resp.status_code == 200
     assert b'page_test' in resp.data
+    assert b'fake author' in resp.data
 
 
 @patch("flaskr.backend.Backend.upload", return_value=b"upload sucessful")
@@ -224,13 +226,111 @@ def test_login_and_logout_successful(client, monkeypatch):
     assert b'Log In' in resp.data
 
 
-# Test that page contents in editable text box is displayed when edit is clicked
+# Test correct options are displayed when user is author
+user = MagicMock()
+user.name = 'Elei'
+
+
+@patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+@patch("flask_login.utils._get_user", return_value=user)
+def test_page_is_viewed_by_author(mock_check_page_author, mock_wiki_page,
+                                  mock_logged_in, client):
+    resp = client.get('pages/test_page')
+    assert resp.status_code == 200
+    assert b'Delete' in resp.data
+    assert b'Edit' in resp.data
+    assert b'Report' not in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test correct options are displayed when user is not author
+@patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_page_is_not_viewed_by_author(mock_check_page_author, mock_wiki_page,
+                                      mock_logged_in, client):
+    resp = client.get('pages/test_page')
+    assert resp.status_code == 200
+    assert b'Report' in resp.data
+    assert b'Delete' not in resp.data
+    assert b'Edit' not in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test correct options are displayed when user is not signed in
+@patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+def test_page_is_viewed_by_not_signed_in_user(mock_check_page_author,
+                                              mock_wiki_page, client):
+    resp = client.get('pages/test_page')
+    assert resp.status_code == 200
+    assert b'Report' in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test report brings up the right page
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_user_can_make_report(mock_logged_in, client):
+    resp = client.get('/report/sample page')
+    assert resp.status_code == 200
+    assert b'Write your report for the page:' in resp.data
+    assert b'sample page' in resp.data
+
+
+# Test report is saved
+@patch("flaskr.backend.Backend.report",
+       return_value="Your report was sent successfully.")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_save_report(mock_report_page, mock_logged_in, client):
+    resp = client.post('/save_report/sample page',
+                       data={'report': 'I like this page'})
+    assert resp.status_code == 200
+    assert b'Report Status:' in resp.data
+    assert b"Your report was sent successfully." in resp.data
+
+
+# Test return message if no report is made
+@patch("flaskr.backend.Backend.report",
+       return_value='You need to enter a message')
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_no_report_mdae(mock_report_page, mock_logged_in, client):
+    resp = client.post('/save_report/sample page', data={'report': ''})
+    assert resp.status_code == 200
+    assert b'Report Status:' in resp.data
+    assert b'You need to enter a message' in resp.data
+
+
+# Test page is successfully deleted
+@patch("flaskr.backend.Backend.delete_page", return_value=True)
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_delete_page_successful(mock_delete_page, mock_logged_in, client):
+    resp = client.get('/delete/sample page')
+    assert resp.status_code == 200
+    assert b'The page sample page, has been deleted.'
+
+
+# Test delete page is unsuccessful
+@patch("flaskr.backend.Backend.delete_page", return_value=False)
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_delete_page_unsuccessful(mock_delete_page, mock_logged_in, client):
+    resp = client.get('/delete/sample page')
+    assert resp.status_code == 200
+    assert b'The page was not deleted. Please try again later.'
+
+
+# Test that page contents is displayed in editable text box when edit is clicked
+# Mock the backend functions
 @patch("flaskr.backend.Backend.get_wiki_page",
        return_value=b"sample page content")
 @patch("flask_login.utils._get_user", return_value=MagicMock())
 def test_edit(mock_get_wiki_page, mock_logged_in, client):
-    # Test edit page
+    # call the page
     resp = client.get('/edit/sample page title')
+    # Check that return result is correct
     assert resp.status_code == 200
     assert b'Make your edits' in resp.data
     assert b'sample page title' in resp.data
@@ -245,3 +345,4 @@ def test_save_edit(mock_upload, mock_logged_in, client):
                        data={'content': 'random data'})
     assert b'Result for editing' in resp.data
     assert b'sample page' in resp.data
+    assert b"upload sucessful" in resp.data
