@@ -4,7 +4,6 @@ from flask import Flask, flash
 from flask import render_template
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import request
-from .search_algo import search_pages
 from .backend import Backend
 from .user import User
 from .form import LoginForm
@@ -140,14 +139,22 @@ def make_endpoints(app, login_manager):
 
     @app.route("/search", methods=['GET', 'POST'])
     def search():
+        backend = Backend()
+
         if request.method == 'POST':
             if 'name' in request.form:
                 search_content = str(request.form['name'])
 
+                if len(search_content) < 1:
+                    err = "Please enter a title or content"
+                    return render_template('search.html', page_titles=[],  num_results = -1, search_content=search_content, err = err)
+
+
                 #The minimum relevance will be for 2 matching words.
                 relevance_score = 0.8955
 
-                all_pages = search_pages(search_content, relevance_score)
+
+                all_pages = backend.search_pages(search_content, relevance_score)
 
                 num_results = len(all_pages)
 

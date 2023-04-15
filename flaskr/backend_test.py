@@ -284,6 +284,8 @@ def test_get_image_successful():
     assert result == content
 
 
+
+
 #Testing that pages are properly being deleted
 def test_delete_page():
     #Setting up mock objects
@@ -304,3 +306,8 @@ def test_delete_page():
 
     #Asserting that false was returned ("Page not found")
     assert result2 == False
+
+
+
+
+

@@ -1,5 +1,3 @@
-from .backend import Backend
-from typing import Callable
 
 
 #normalized distance for different
@@ -22,38 +20,3 @@ def levenshtein_distance(str1, str2):
     return normalized_distance
 
 
-#Going to get the distance for each one and combine it into a list
-def search_pages(search_content, min_relevance_score, search_func: Callable = None):
-    print("search_algo.py imported")
-
-    if len(search_content) < 1:
-        return []
-
-    min_relevance_score = min_relevance_score / len(search_content)
-
-    search_results = []
-
-    backend = Backend()
-    all_pages = backend.get_all_page_names()
-
-    for page_title in all_pages:
-        page_content = backend.get_wiki_page(page_title)
-
-        title_distance = levenshtein_distance(search_content, page_title)
-        content_similarity = levenshtein_distance(search_content, page_content)
-        relevance_score = 0.7 * content_similarity + 0.3 * title_distance
-
-        # scale relevance score by length of search
-        relevance_score /= len(search_content)
-
-        print('min relavance score' + str(min_relevance_score))
-        print('relavance score' + str(relevance_score))
-
-        if relevance_score <= min_relevance_score:
-            search_results.append((page_title, relevance_score))
-
-    search_results.sort(key=lambda x: x[1])
-
-    page_titles = [result[0] for result in search_results]
-
-    return page_titles
