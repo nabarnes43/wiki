@@ -1,4 +1,5 @@
 from flaskr.backend import Backend
+from .search_algo import levenshtein_distance
 import unittest
 from unittest.mock import MagicMock
 from google.cloud import exceptions
@@ -326,3 +327,156 @@ def test_delete_page():
 
     #Asserting that false was returned ("Page not found")
     assert result2 == False
+
+
+def test_search_pages_result():
+    """
+    Tests that the search_pages function returns the expected page titles in the correct order.
+
+    Uses a MagicMock object to mock the WikiSearcher and StorageClient classes and configures the
+    mock object to return expected values. Then calls the search_pages function with a search term
+    and relevance score, and asserts that the returned page titles match the expected page titles
+    in the correct order.
+    """
+    # Create a MagicMock object to mock the WikiSearcher class
+    wiki_searcher = MagicMock()
+    storage_client = MagicMock()
+
+    # Configure the mock object to return the expected values
+    wiki_searcher.get_all_page_names.return_value = [
+        'Cat', 'Dog', 'Bird', 'Fish'
+    ]
+    wiki_searcher.get_wiki_page.side_effect = lambda x: {
+        'Cat':
+            'A cat is a domesticated carnivorous mammal',
+        'Dog':
+            'A dog is a domesticated carnivorous mammal',
+        'Bird':
+            'Birds, also known as Aves, are a group of warm-blooded vertebrates',
+        'Fish':
+            'Fish are aquatic animals that breathe through gills'
+    }.get(x)
+
+    backend = Backend(storage_client)
+
+    # Call the search_pages function with the mock object
+    search_content = 'cat'
+    relevance_score = 0.8955
+    page_titles = backend.search_pages(search_content, relevance_score,
+                                       wiki_searcher)
+
+    # Assert that the expected page titles are returned in the correct order
+    expected_page_titles = ['Cat']
+    assert page_titles == expected_page_titles
+
+
+def test_search_pages_no_result():
+    """
+    Test that the search_pages function returns the expected page titles for no result.
+    
+    This function uses a MagicMock object to mock the WikiSearcher and StorageClient classes and
+    configures the mock object to return expected values. It then calls the search_pages function with
+    a search term and relevance score, and asserts that the returned page titles match the expected page
+    titles in the correct order.
+    """
+    # Create a MagicMock object to mock the WikiSearcher class.
+    wiki_searcher = MagicMock()
+    storage_client = MagicMock()
+
+    # Configure the mock object to return the expected values.
+    wiki_searcher.get_all_page_names.return_value = [
+        'Cat', 'Dog', 'Bird', 'Fish'
+    ]
+
+    # Set up a side effect for the `get_wiki_page` method that returns a dictionary
+    # of page content for the given page names.
+    wiki_searcher.get_wiki_page.side_effect = lambda x: {
+        'Cat':
+            'A cat is a domesticated carnivorous mammal',
+        'Dog':
+            'A dog is a domesticated carnivorous mammal',
+        'Bird':
+            'Birds, also known as Aves, are a group of warm-blooded vertebrates',
+        'Fish':
+            'Fish are aquatic animals that breathe through gills'
+    }.get(x)
+
+    backend = Backend(storage_client)
+
+    # Call the search_pages function with the mock object.
+    search_content = 'happy'
+    relevance_score = 0.8955
+    page_titles = backend.search_pages(wiki_searcher, search_content,
+                                       relevance_score)
+
+    # Assert that the expected page titles are returned in the correct order.
+    expected_page_titles = []
+
+    # Check if the page titles returned by the search_pages method match the expected page titles.
+    assert page_titles == expected_page_titles
+
+
+def test_search_pages_result_order():
+    '''
+        This function tests that the search_pages function returns the expected page titles
+        in the correct order. It uses a MagicMock object to mock the WikiSearcher and StorageClient 
+        classes and configures the mock object to return expected values. It then calls the search_pages 
+        function with a search term and relevance score, and asserts that the returned page titles 
+        match the expected page titles in the correct order.
+        '''
+    # create a MagicMock object to mock the WikiSearcher class
+    wiki_searcher = MagicMock()
+    storage_client = MagicMock()
+
+    # configure the mock object to return the expected values
+    wiki_searcher.get_all_page_names.return_value = [
+        'Cat11', 'Cat1', 'Cat', 'Cat111'
+    ]
+    wiki_searcher.get_wiki_page.side_effect = lambda x: {
+        'Cat11': 'A cat is a domesticated carnivorous mammal',
+        'Cat1': 'A cat is a domesticated carnivorous mammal',
+        'Cat': 'A cat is a domesticated carnivorous mammal',
+        'Cat111': 'A cat is a domesticated carnivorous mammal',
+    }.get(x)
+
+    backend = Backend(storage_client)
+
+    # call the search_pages function with the mock object
+    search_content = 'cat'
+    relevance_score = 0.8955
+    page_titles = backend.search_pages(search_content, relevance_score,
+                                       wiki_searcher)
+
+    # assert that the expected page titles are returned in the correct order
+    expected_page_titles = ['Cat', 'Cat1', 'Cat11', 'Cat111']
+
+    assert page_titles == expected_page_titles
+
+
+def test_search_pages_relevance_score():
+    '''
+    This function tests the relevance score calculation for the search_pages function.
+    configures the mock object to return expected values. It then calculates the relevance 
+    score for a search term and asserts that the result matches the expected value.
+    '''
+    storage_client = MagicMock()
+
+    backend = Backend(storage_client)
+
+    search_content = 'cat'
+    relevance_score = 1
+
+    page_title = 'Cat'
+    page_content = 'A cat is a domesticated carnivorous mammal'
+
+    title_distance = levenshtein_distance(search_content, page_title)
+    content_similarity = levenshtein_distance(search_content, page_content)
+    relevance_score = 0.7 * content_similarity + 0.3 * title_distance
+
+    # scale relevance score by length of search
+    relevance_score /= len(search_content)
+
+    # assert that the expected page titles are returned in the correct order
+    expected_relevance_score = .25
+
+    assert relevance_score == expected_relevance_score
