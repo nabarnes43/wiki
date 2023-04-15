@@ -2,23 +2,51 @@
 
 
 {% block page_name %}
-<h3>Search</h3>
+    <h3>Search</h3>
 {% endblock %}
 
 {% block content %}
 
+{% if err %}
+<p style="color: red;"><b>{{err}}</b></p>
+{% endif %}
+
 <form action="/search" method="POST">
     <label for="name">Search:</label>
-    <input type="text" id="name" name="name">
+    <input type="text" id="name" name="name" placeholder="Enter a title or content...">
     <button type="submit">Search</button>
 </form>
 
+{% if num_results > 0 %}
+    <p><b>number of results: {{num_results}}</b></p>
+    <ul>
+        {% for title in page_titles %}
+        <li><a href = "/pages/{{title}}">{{title}}</a></li>
+        {% endfor %}
+        {{page}}
+    </ul>
+{% endif %}
 
+{% if num_results == 0 %}
+    <p><b>number of results: {{num_results}}</b></p>
 
-<ul>
-    {% for title in page_titles %}
-    <li><a href = "/pages/{{title}}">{{title}}</a></li>
-    {% endfor %}
-    {{page}}
-</ul>
+    <p style="padding-left: 40px;">
+        Sorry we have no result for: <b>"{{search_content}}"</b>
+        <br>
+        <br>
+        Please <a href="/search">try again</a>
+        <br>
+        <br>
+        Suggestions:
+        <br>
+    </p>
+
+    <ul style="list-style-position: outside; padding-left: 70px;">
+        <li>Make sure all words are spelled correctly.</li>
+        <li>Try different keywords.</li>
+        <li>Try more general keywords.</li> 
+    </ul>
+
+{% endif %}
+
 {% endblock %}
