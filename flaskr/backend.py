@@ -205,7 +205,7 @@ class Backend:
                 return True
         #Return false if it was never found
         return False
-    def check_page_author(self, name):
+    def check_page_author(self, page_name):
         """
         Retrieves the author metadata of a blob with the given name from the Google Cloud Storage bucket.
 
@@ -218,40 +218,19 @@ class Backend:
         If an error occurs while retrieving the metadata, returns None and prints an error message.
         """
 
-        try:
-            bucket = self.storage_client.bucket("sdswiki_contents")
-            blob = bucket.get_blob(name)
-            if blob:
-                try:
-                    metadata = blob.metadata
-                    author = metadata.get('author')
-                    if author is not None:
-                        return author
-                    else:
-                        return 'Unknown'
-            
-                except AttributeError:
+        bucket = self.storage_client.bucket("sdswiki_contents")
+        blob = bucket.get_blob(page_name)
+        if blob:
+            try:
+                metadata = blob.metadata
+                author = metadata.get('author')
+                if author is not None:
+                    return author
+                else:
                     return 'Unknown'
 
-                except Exception as e:
-                    print(
-                        f"An error occurred while trying to retrieve the metadata: {e}"
-                    )
-                    return 'Unknown'
-            else:
+            except AttributeError:
                 return 'Unknown'
 
-        except exceptions.NotFound:
-            return f"Error: Wiki page {name} not found."
-
-        except Exception as e:
-            return f"Network error: {e}"
-
-    def delete_page(self, name):
-        blobs = self.storage_client.list_blobs('sdswiki_contents')
-        for blob in blobs:
-            if blob.name == name:
-                blob.delete()
-                return True
-        return False
-
+        else:
+            return 'Unknown'
