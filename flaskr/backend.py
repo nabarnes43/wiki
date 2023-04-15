@@ -1,6 +1,5 @@
 from google.cloud import storage
 from google.cloud import exceptions
-from .search_algo import levenshtein_distance
 import hashlib
 import io
 from flask import Flask
@@ -181,60 +180,3 @@ class Backend:
                 return True
         #Return false if it was never found
         return False
-
-    def search_pages(self,
-                     search_content,
-                     max_relevance_score,
-                     wiki_searcher=None):
-        """
-        Searches the wiki for pages that match the search_content and returns
-        a list of page titles sorted by relevance.
-
-        Args:
-            search_content (str): The search term.
-            max_relevance_score (float): The maximum relevance score for a page to be considered a match.
-            wiki_searcher (WikiSearcher): The object used to search for wiki pages.
-
-        Returns:
-            List[str]: The list of page titles sorted by relevance.
-
-        """
-
-        if wiki_searcher is None:
-            wiki_searcher = self
-
-        if len(search_content) < 1:
-            return []
-
-        # Adjust max_relevance_score based on length of search_content
-        max_relevance_score = max_relevance_score / len(search_content)
-
-        search_results = []
-
-        all_pages = wiki_searcher.get_all_page_names()
-
-        for page_title in all_pages:
-            page_content = wiki_searcher.get_wiki_page(page_title)
-
-            # Calculate title and content distances
-            title_distance = levenshtein_distance(search_content, page_title)
-            content_similarity = levenshtein_distance(search_content,
-                                                      page_content)
-
-            # Combine title and content distances to get relevance score
-            relevance_score = 0.7 * content_similarity + 0.3 * title_distance
-
-            # Scale relevance score by length of search
-            relevance_score /= len(search_content)
-
-            # Add page to search_results if relevance score is below max_relevance_score
-            if relevance_score <= max_relevance_score:
-                search_results.append((page_title, relevance_score))
-
-        # Sort search_results by relevance score
-        search_results.sort(key=lambda x: x[1])
-
-        # Extract page titles from search_results and return them
-        page_titles = [result[0] for result in search_results]
-
-        return page_titles

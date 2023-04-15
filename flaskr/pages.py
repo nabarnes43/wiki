@@ -126,6 +126,23 @@ def make_endpoints(app, login_manager):
 
         return render_template('pages.html', page_titles=all_pages)
 
+    @app.route("/search", methods=['GET', 'POST'])
+    def search():
+        if request.method == 'POST':
+            if 'name' in request.form:
+                search_content = str(request.form['name'])
+                print(search_content)
+
+                #TODO use content to search backend for a list.
+                backend = Backend()
+                all_pages = backend.get_all_page_names()
+
+                return render_template('search.html', page_titles=all_pages)
+            else:
+                return "Missing 'name' field in form"
+        else:
+            return render_template('search.html')
+
     @app.route("/pages/<page_title>", methods=['GET'])
     def page_details(page_title):
         '''
@@ -135,48 +152,6 @@ def make_endpoints(app, login_manager):
         page = backend.get_wiki_page(page_title)
 
         return render_template('pages.html', page=page)
-
-    @app.route("/search", methods=['GET', 'POST'])
-    def search():
-        """Handle the search page GET and POST requests.
-
-        Returns:
-            The rendered HTML template with search results or an error message.
-        """
-
-        backend = Backend()
-
-        if request.method == 'POST':
-            if 'name' in request.form:
-                search_content = str(request.form['name'])
-
-                if len(search_content) < 1:
-                    err = "Please enter a title or content"
-                    return render_template('search.html',
-                                           page_titles=[],
-                                           num_results=-1,
-                                           search_content=search_content,
-                                           err=err)
-
-                # The minimum relevance will be for 2 matching words.
-                relevance_score = 0.8955
-
-                all_pages = backend.search_pages(search_content,
-                                                 relevance_score)
-
-                num_results = len(all_pages)
-
-                return render_template('search.html',
-                                       page_titles=all_pages,
-                                       num_results=num_results,
-                                       search_content=search_content)
-            else:
-                return "Missing 'name' field in form"
-        else:
-            return render_template('search.html',
-                                   page_titles=[],
-                                   num_results=-1,
-                                   search_content="")
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
