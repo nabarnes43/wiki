@@ -4,7 +4,6 @@ from flask import Flask, flash
 from flask import render_template
 from flask_login import login_user, current_user, logout_user, login_required
 from flask import request
-from .search_algo import search_pages
 from .backend import Backend
 from .user import User
 from .form import LoginForm
@@ -140,24 +139,46 @@ def make_endpoints(app, login_manager):
 
     @app.route("/search", methods=['GET', 'POST'])
     def search():
+        """Handle the search page GET and POST requests.
+
+        Returns:
+            The rendered HTML template with search results or an error message.
+        """
+
+        backend = Backend()
+
         if request.method == 'POST':
             if 'name' in request.form:
                 search_content = str(request.form['name'])
 
-                #The minimum relevance will be for 2 matching words.
+                if len(search_content) < 1:
+                    err = "Please enter a title or content"
+                    return render_template('search.html',
+                                           page_titles=[],
+                                           num_results=-1,
+                                           search_content=search_content,
+                                           err=err)
+
+                # The minimum relevance will be for 2 matching words.
                 relevance_score = 0.8955
 
-                all_pages = search_pages(search_content, relevance_score)
+                all_pages = backend.search_pages(search_content,
+                                                 relevance_score)
 
                 num_results = len(all_pages)
 
-                return render_template('search.html', page_titles=all_pages,  num_results = num_results, search_content=search_content)
+                return render_template('search.html',
+                                       page_titles=all_pages,
+                                       num_results=num_results,
+                                       search_content=search_content)
             else:
                 return "Missing 'name' field in form"
         else:
-            return render_template('search.html', page_titles=[],  num_results = -1, search_content="")
+            return render_template('search.html',
+                                   page_titles=[],
+                                   num_results=-1,
+                                   search_content="")
 
-            
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
         '''
