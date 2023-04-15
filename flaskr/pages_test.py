@@ -4,8 +4,6 @@ import pytest
 import io
 
 
-
-
 # See https://flask.palletsprojects.com/en/2.2.x/testing/
 # for more info on testing
 @pytest.fixture
@@ -223,14 +221,15 @@ def test_login_and_logout_successful(client, monkeypatch):
 
 
 def test_search(client, monkeypatch):
+    '''Tests search functionality with mock search algorithm that returns 2 search results'''
 
     def mock_search_algo(self, search_content, relevance_score):
+        '''Mock search algorithm that returns 2 search results'''
         result = ['Page Title 1', 'Page Title 2']
-        
         return result
 
     monkeypatch.setattr(Backend, 'search_pages', mock_search_algo)
-    
+
     response = client.post('/search', data={'name': 'B phd'})
 
     assert response.status_code == 200
@@ -238,11 +237,13 @@ def test_search(client, monkeypatch):
     assert b'Page Title 2' in response.data
     assert b'number of results: 2' in response.data
 
+
 def test_search_no_results(client, monkeypatch):
+    '''Tests search functionality with mock search algorithm that returns no search results'''
 
     def mock_search_algo(self, search_content, relevance_score):
+        '''Mock search algorithm that returns no search results'''
         result = []
-
         return result
 
     monkeypatch.setattr(Backend, 'search_pages', mock_search_algo)
@@ -256,6 +257,7 @@ def test_search_no_results(client, monkeypatch):
 
 
 def test_search_invalid_input(client, monkeypatch):
+    '''Tests search functionality with invalid user input'''
 
     response = client.post('/search', data={'name': ''})
 
