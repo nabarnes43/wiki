@@ -1,5 +1,3 @@
-# ---- YOUR APP STARTS HERE ----
-# -- Import section --
 from flask import Flask, flash
 from flask import render_template
 from flask_login import login_user, current_user, logout_user, login_required
@@ -36,15 +34,16 @@ def make_endpoints(app, login_manager):
         form = LoginForm()
         if form.validate_on_submit():
             user = User(form.username.data)
-            username = form.username.data
             status = backend.sign_in(form.username.data, form.password.data)
-            if status == 'Sign In Successful':
+            if status:
                 login_user(user, remember=True)
                 return render_template('main.html', name=current_user.name)
-            elif status == 'Incorrect Password':
-                return "An incorrect password was entered"
-            else:
-                return "The username is incorrect"
+            elif not status:
+                err = "Incorrect password or username"
+                return render_template('login.html',
+                                       form=form,
+                                       user=current_user,
+                                       err=err)
         return render_template('login.html', form=form, user=current_user)
 
     #Loads the user (used by flask login)
