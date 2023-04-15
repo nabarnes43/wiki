@@ -66,6 +66,9 @@ def skip_test_create_account_succesful_page(client):
     response = client.post('/createaccount',
                            data=dict(Username='testuser',
                                      Password='testpassword'))
+
+    print(response.data)
+
     assert response.status_code == 200
     assert b'testuser' in response.data
 
@@ -213,3 +216,48 @@ def test_login_and_logout_successful(client, monkeypatch):
     #Test logout
     resp = client.get("/logout")
     assert b'Log In' in resp.data
+
+
+def test_search(client, monkeypatch):
+    '''Tests search functionality with mock search algorithm that returns 2 search results'''
+
+    def mock_search_algo(self, search_content, relevance_score):
+        '''Mock search algorithm that returns 2 search results'''
+        result = ['Page Title 1', 'Page Title 2']
+        return result
+
+    monkeypatch.setattr(Backend, 'search_pages', mock_search_algo)
+
+    response = client.post('/search', data={'name': 'B phd'})
+
+    assert response.status_code == 200
+    assert b'Page Title 1' in response.data
+    assert b'Page Title 2' in response.data
+    assert b'number of results: 2' in response.data
+
+
+def test_search_no_results(client, monkeypatch):
+    '''Tests search functionality with mock search algorithm that returns no search results'''
+
+    def mock_search_algo(self, search_content, relevance_score):
+        '''Mock search algorithm that returns no search results'''
+        result = []
+        return result
+
+    monkeypatch.setattr(Backend, 'search_pages', mock_search_algo)
+
+    response = client.post('/search', data={'name': 'no results'})
+
+    assert response.status_code == 200
+    assert b'number of results: 0' in response.data
+    assert b'Sorry we have no result for: <b>"no results"</b>' in response.data
+    assert b'try again' in response.data
+
+
+def test_search_invalid_input(client, monkeypatch):
+    '''Tests search functionality with invalid user input'''
+
+    response = client.post('/search', data={'name': ''})
+
+    assert response.status_code == 200
+    assert b'Please enter a title or content' in response.data
