@@ -363,7 +363,7 @@ def test_check_page_author_no_author_metadata():
     result = backend.check_page_author("test_page")
 
     # Check that None is returned
-    assert result is None
+    assert result is 'Unknown'
 
 
 def test_check_page_author_blob_does_not_exist():
@@ -381,7 +381,7 @@ def test_check_page_author_blob_does_not_exist():
     result = backend.check_page_author("test_page")
 
     # Check that None is returned
-    assert result is None
+    assert result is 'Unknown'
 
 
 def test_check_page_author_error_retrieving_metadata():
@@ -402,7 +402,7 @@ def test_check_page_author_error_retrieving_metadata():
         result = backend.check_page_author("test_page")
 
     # Check that None is returned and an error message is printed
-    assert result is None
+    assert result is 'Unknown'
     assert mock_print.call_count == 1
 
 

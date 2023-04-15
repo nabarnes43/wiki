@@ -226,27 +226,32 @@ class Backend:
                     metadata = blob.metadata
                     author = metadata.get('author')
                     if author is not None:
-                        print(f"The author of the blob is {author}")
                         return author
                     else:
-                        print(f"The blob does not have an author metadata.")
-                        return None
-
+                        return 'Unknown'
+            
                 except AttributeError:
-                    print(f"The specified blob does not have any metadata.")
-                    return None
+                    return 'Unknown'
 
                 except Exception as e:
                     print(
                         f"An error occurred while trying to retrieve the metadata: {e}"
                     )
-                    return None
+                    return 'Unknown'
             else:
-                print(f"The specified blob does not exist.")
-                return None
+                return 'Unknown'
 
         except exceptions.NotFound:
             return f"Error: Wiki page {name} not found."
 
         except Exception as e:
             return f"Network error: {e}"
+
+    def delete_page(self, name):
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        for blob in blobs:
+            if blob.name == name:
+                blob.delete()
+                return True
+        return False
+
