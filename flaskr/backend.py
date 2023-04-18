@@ -100,12 +100,18 @@ class Backend:
         return f"{destination_blob_name} uploaded to Wiki."
 
     def report(self, page, message):
+        '''
+        Saves the report message for a page in backend
+        Args: The page being reported, and the message of the report
+        Returns: A message stating the status of the report made.
+        '''
         if message == '':
             return 'You need to enter a message'
         bucket = self.storage_client.bucket('sds_reports')
 
         blob = bucket.get_blob(page)
-        if blob == None: blob = bucket.blob(page)
+        if blob == None:
+            blob = bucket.blob(page)
 
         blob.upload_from_string(message)
         return "Your report was sent successfully."
@@ -200,6 +206,7 @@ class Backend:
                 return True
         #Return false if it was never found
         return False
+        
     def check_page_author(self, page_name):
         """
         Retrieves the author metadata of a blob with the given name from the Google Cloud Storage bucket.

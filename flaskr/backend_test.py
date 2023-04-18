@@ -318,7 +318,8 @@ def test_check_page_author_exists(blob, bucket, storage_client, backend):
     assert result == author_name
 
 
-def test_check_page_author_no_author_metadata(blob, bucket, storage_client, backend):
+def test_check_page_author_no_author_metadata(blob, bucket, storage_client,
+                                              backend):
     """
     Test that Unknown is returned when the blob exists but does not have an author metadata.
     """
@@ -335,7 +336,8 @@ def test_check_page_author_no_author_metadata(blob, bucket, storage_client, back
     assert result is 'Unknown'
 
 
-def test_check_page_author_blob_does_not_exist(blob, bucket, storage_client, backend):
+def test_check_page_author_blob_does_not_exist(blob, bucket, storage_client,
+                                               backend):
     """
     Test that Unknown is returned when the specified blob does not exist.
     """
@@ -350,7 +352,8 @@ def test_check_page_author_blob_does_not_exist(blob, bucket, storage_client, bac
     assert result is 'Unknown'
 
 
-def test_check_page_author_error_retrieving_metadata(blob, bucket, storage_client, backend):
+def test_check_page_author_error_retrieving_metadata(blob, bucket,
+                                                     storage_client, backend):
     """
     Test that Unknown is returned and an error message is printed when an error occurs while retrieving metadata.
     """
@@ -379,7 +382,8 @@ def test_empty_report(blob, bucket, storage_client, backend):
     assert 'You need to enter a message' in result
 
 
-def test_report_when_page_is_not_in_database(blob, bucket, storage_client, backend):
+def test_report_when_page_is_not_in_database(blob, bucket, storage_client,
+                                             backend):
     '''
     Test reporting page when it is the first time a report has been made on that page
     '''

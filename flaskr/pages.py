@@ -198,7 +198,7 @@ def make_endpoints(app, login_manager):
             upload_status = backend.upload(data, destination_blob,
                                            current_user.get_id())
 
-            return render_template('upload_result.html',
+            return render_template('result.html',
                                    upload_status=upload_status,
                                    page_title=destination_blob,
                                    name=current_user.name)
@@ -207,6 +207,9 @@ def make_endpoints(app, login_manager):
 
     @app.route("/edit/<title>", methods=['GET'])
     def make_edit(title):
+        '''
+        Renders the edit page where form is displayed to enable users make their edit to a page. 
+        '''
         backend = Backend()
         content = backend.get_wiki_page(title)
         return render_template('edit.html',
@@ -216,12 +219,15 @@ def make_endpoints(app, login_manager):
 
     @app.route("/save_edit/<page_title>", methods=['POST'])
     def save_edit(page_title):
+        '''
+        Renders the result page where the result of the users edit is displayed.
+        '''
         backend = Backend()
         content = str(request.form['content'])
         upload_status = backend.upload(content, page_title, current_user.name,
                                        True)
 
-        return render_template('upload_result.html',
+        return render_template('result.html',
                                upload_status=upload_status,
                                edit=True,
                                name=current_user.name,
@@ -247,7 +253,7 @@ def make_endpoints(app, login_manager):
         backend = Backend()
         message = str(request.form['report'])
         report_result = backend.report(page_title, message)
-        return render_template('upload_result.html',
+        return render_template('result.html',
                                report=True,
                                upload_status=report_result,
                                name=current_user.name)
