@@ -1,9 +1,9 @@
 {% extends "main.html" %}
 
 {% block page_name %}
-{% if edit == True %}
+{% if edit %}
 <h3>Result for editing {{page_title}}:</h3>
-{% elif report == True %}
+{% elif report %}
 <h3> Report Status: </h3>
 {% else %}
 <h3>Result for uploading {{page_title}}:</h3>

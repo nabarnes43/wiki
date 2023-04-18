@@ -321,7 +321,7 @@ def test_check_page_author_exists(blob, bucket, storage_client, backend):
 def test_check_page_author_no_author_metadata(blob, bucket, storage_client,
                                               backend):
     """
-    Test that Unknown is returned when the blob exists but does not have an author metadata.
+    Test that None is returned when the blob exists but does not have an author metadata.
     """
     # Setup mock objects for the test
     metadata = {}
@@ -333,13 +333,13 @@ def test_check_page_author_no_author_metadata(blob, bucket, storage_client,
     result = backend.check_page_author("test_page")
 
     # Check that Unknown is returned
-    assert result is 'Unknown'
+    assert result is None
 
 
 def test_check_page_author_blob_does_not_exist(blob, bucket, storage_client,
                                                backend):
     """
-    Test that Unknown is returned when the specified blob does not exist.
+    Test that None is returned when the specified blob does not exist.
     """
     # Setup mock objects for the test
     storage_client.bucket.return_value = bucket
@@ -349,13 +349,13 @@ def test_check_page_author_blob_does_not_exist(blob, bucket, storage_client,
     result = backend.check_page_author("test_page")
 
     # Check that Unknown is returned
-    assert result is 'Unknown'
+    assert result is None
 
 
 def test_check_page_author_error_retrieving_metadata(blob, bucket,
                                                      storage_client, backend):
     """
-    Test that Unknown is returned and an error message is printed when an error occurs while retrieving metadata.
+    Test that None is returned and an error message is printed when an error occurs while retrieving metadata.
     """
     # Setup mock objects for the test
     storage_client.bucket.return_value = bucket
@@ -367,7 +367,7 @@ def test_check_page_author_error_retrieving_metadata(blob, bucket,
         result = backend.check_page_author("test_page")
 
     # Check that Unknown is returned and an error message is printed
-    assert result is 'Unknown'
+    assert result is None
 
 
 def test_empty_report(blob, bucket, storage_client, backend):

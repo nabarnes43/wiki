@@ -76,6 +76,10 @@ class Backend:
             A response message stating if your upload was successful or not.
             If the upload was unsuccessulf, the reason why would be displayed.
         '''
+<<<<<<< HEAD
+=======
+
+>>>>>>> a65f0c1 (resolved merge reviews)
         if len(data) <= 0:
             if override:
                 return 'Page contents cannot be empty'
@@ -87,13 +91,20 @@ class Backend:
             if destination_blob_name == blob.name:
                 return 'Upload failed. You cannot overrite an existing page'
 
+<<<<<<< HEAD
 
         blob = self.pages_bucket.blob(destination_blob_name)
+=======
+        try:
+            blob = bucket.blob(destination_blob_name)
+            # Set the x-goog-meta-author metadata header
+            blob.metadata = {'author': username}
+>>>>>>> a65f0c1 (resolved merge reviews)
 
-        # Set the x-goog-meta-author metadata header
-        blob.metadata = {'author': username}
+            blob.upload_from_string(data)
 
-        blob.upload_from_string(data)
+        except Exception as e:
+            return f"Network Error: {e}. Please try again later."
 
         if override:
             return f"The page titled {destination_blob_name} was successfully updated."
@@ -112,8 +123,14 @@ class Backend:
         blob = bucket.get_blob(page)
         if blob == None:
             blob = bucket.blob(page)
+            blob.upload_from_string(message)
 
-        blob.upload_from_string(message)
+        else:
+            new_report = message + '\n'
+            with blob.open('r') as f:
+                new_report += str(f.read())
+            with blob.open('w') as f:
+                f.write(new_report)
         return "Your report was sent successfully."
 
     def sign_up(self, name, password):
@@ -219,7 +236,6 @@ class Backend:
         If the specified blob does not exist or does not have an author metadata, returns None.
         If an error occurs while retrieving the metadata, returns None and prints an error message.
         """
-
         bucket = self.storage_client.bucket("sdswiki_contents")
         blob = bucket.get_blob(page_name)
         if blob:
@@ -229,10 +245,10 @@ class Backend:
                 if author:
                     return author
                 else:
-                    return 'Unknown'
+                    return None
 
             except AttributeError:
-                return 'Unknown'
+                return None
 
         else:
-            return 'Unknown'
+            return None
