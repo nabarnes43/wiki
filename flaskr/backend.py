@@ -100,12 +100,18 @@ class Backend:
         return f"{destination_blob_name} uploaded to Wiki."
 
     def report(self, page, message):
+        '''
+        Saves the report message for a page in backend
+        Args: The page being reported, and the message of the report
+        Returns: A message stating the status of the report made.
+        '''
         if message == '':
             return 'You need to enter a message'
         bucket = self.storage_client.bucket('sds_reports')
 
         blob = bucket.get_blob(page)
-        if blob == None: blob = bucket.blob(page)
+        if blob == None:
+            blob = bucket.blob(page)
 
         blob.upload_from_string(message)
         return "Your report was sent successfully."
@@ -215,6 +221,11 @@ class Backend:
             return 'Unknown'
 
     def delete_page(self, name):
+        '''
+        Delete a page from the back end
+        Args: Page name
+        Return: True if page is deleted
+        '''
         blobs = self.storage_client.list_blobs('sdswiki_contents')
         for blob in blobs:
             if blob.name == name:
