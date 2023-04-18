@@ -144,17 +144,13 @@ def test_get_all_page_names_not_found():
 #     assert result == expected_error_message
 
 
-def test_upload_existing_page():
+def test_upload_existing_page(blob, bucket, storage_client, backend):
     '''
     Test that you cannot upload a page when it already exists
     '''
 
-    blob = MagicMock()
     blob.name = 'mock_name'
-    storage_client = MagicMock()
     storage_client.list_blobs.return_value = [blob]
-
-    backend = Backend(storage_client)
     upload_result = backend.upload('random stuff', 'mock_name', 'username')
 
     assert upload_result == 'Upload failed. You cannot overrite an existing page'
@@ -178,12 +174,10 @@ def test_upload_no_file():
     assert upload_result == 'Please upload a file.'
 
 
-def test_successful_upload():
+def test_successful_upload(blob, bucket, storage_client, backend):
     '''
     Test successful upload.
     '''
-    storage_client = MagicMock()
-    blob = MagicMock()
     storage_client.list_blobs.return_value = [blob]
 
     backend = Backend(storage_client)
@@ -191,60 +185,45 @@ def test_successful_upload():
     assert 'uploaded to Wiki.' in upload_result
 
 
-def test_upload_to_empty_database():
+def test_upload_to_empty_database(blob, bucket, storage_client, backend):
     '''
     Test that uploads are still possible even if database was previously empty.
     '''
-    storage_client = MagicMock()
     storage_client.list_blobs.return_value = []
 
-    backend = Backend(storage_client)
     upload_result = backend.upload('random stuff', 'mock_name', 'username')
     assert 'uploaded to Wiki.' in upload_result
 
 
-def test_successful_sign_up():
+def test_successful_sign_up(blob, bucket, storage_client, backend):
     '''
     Test that sign up is successful if it is a new user
     '''
-    blob1 = MagicMock()
-    blob2 = MagicMock()
-    blob1.name = 'Mary'
-    blob2.name = 'Nkata'
-    storage_client = MagicMock()
-    storage_client.list_blobs.return_value = [blob1, blob2]
+    blob.name = 'Mary'
+    storage_client.list_blobs.return_value = [blob]
 
-    backend = Backend(storage_client)
     sign_up_result = backend.sign_up('Test user', 'no password')
 
     assert 'successfully created.' in sign_up_result
 
 
-def test_unsuccessful_sign_up():
+def test_unsuccessful_sign_up(blob, bucket, storage_client, backend):
     '''
     Test that sign up is unsuccessful if it is not a new user
     '''
-    blob1 = MagicMock()
-    blob2 = MagicMock()
-    blob1.name = 'Mary'
-    blob2.name = 'Nkata'
-    storage_client = MagicMock()
-    storage_client.list_blobs.return_value = [blob1, blob2]
+    blob.name = 'Mary'
+    storage_client.list_blobs.return_value = [blob]
 
-    backend = Backend(storage_client)
     sign_up_result = backend.sign_up('Mary', 'no password')
 
     assert 'already exists in the database' in sign_up_result
 
 
 #Testing that wrong usernames are found and that "Username not found" is returned
-def test_no_username_sign_in():
-    blob1 = MagicMock()
-    blob1.name = 'randomuser3456'
-    storage_client = MagicMock()
-    storage_client.list_blobs.return_value = [blob1]
+def test_no_username_sign_in(blob, bucket, storage_client, backend):
+    blob.name = 'randomuser3456'
+    storage_client.list_blobs.return_value = [blob]
 
-    backend = Backend(storage_client)
     result = backend.sign_in('Mary', 'no_password')
 
     assert result == False
@@ -301,18 +280,15 @@ def test_get_image_successful():
 
 
 #Testing that pages are properly being deleted
-def test_delete_page():
+def test_delete_page(blob, bucket, storage_client, backend):
     '''
     Test that pages are properly deleted
     '''
     #Setting up mock objects
-    blob1 = MagicMock()
-    blob1.name = 'testPage'
-    storage_client = MagicMock()
+    blob.name = 'testPage'
     storage_client.list_blobs.return_value = [blob1]
 
     #Deleting the testPage
-    backend = Backend(storage_client)
     result = backend.delete_page('testPage')
 
     #Asserting that the page was deleted
@@ -323,81 +299,67 @@ def test_delete_page():
 
     #Asserting that false was returned ("Page not found")
     assert result2 == False
-def test_check_page_author_exists():
+
+def test_check_page_author_exists(blob, bucket, storage_client, backend):
     """
     Test that the author name of a blob that exists and has an author metadata is correctly returned.
     """
     # Setup mock objects for the test
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
     author_name = "Test Author"
     metadata = {'author': author_name}
     storage_client.bucket.return_value = bucket
     bucket.get_blob.return_value = blob
     blob.metadata = metadata
 
-    # Create a backend instance and call the method being tested
-    backend = Backend(storage_client)
+    # Call the method being tested
     result = backend.check_page_author("test_page")
 
     # Check that the expected author name is returned
     assert result == author_name
 
 
-def test_check_page_author_no_author_metadata():
+def test_check_page_author_no_author_metadata(blob, bucket, storage_client, backend):
     """
     Test that Unknown is returned when the blob exists but does not have an author metadata.
     """
     # Setup mock objects for the test
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
     metadata = {}
     storage_client.bucket.return_value = bucket
     bucket.get_blob.return_value = blob
     blob.metadata = metadata
 
-    # Create a backend instance and call the method being tested
-    backend = Backend(storage_client)
+    # Call the method being tested
     result = backend.check_page_author("test_page")
 
     # Check that Unknown is returned
     assert result is 'Unknown'
 
 
-def test_check_page_author_blob_does_not_exist():
+def test_check_page_author_blob_does_not_exist(blob, bucket, storage_client, backend):
     """
     Test that Unknown is returned when the specified blob does not exist.
     """
     # Setup mock objects for the test
-    storage_client = MagicMock()
-    bucket = MagicMock()
     storage_client.bucket.return_value = bucket
     bucket.get_blob.return_value = None
 
-    # Create a backend instance and call the method being tested
-    backend = Backend(storage_client)
+    # Call the method being tested
     result = backend.check_page_author("test_page")
 
     # Check that Unknown is returned
     assert result is 'Unknown'
 
 
-def test_check_page_author_error_retrieving_metadata():
+def test_check_page_author_error_retrieving_metadata(blob, bucket, storage_client, backend):
     """
     Test that Unknown is returned and an error message is printed when an error occurs while retrieving metadata.
     """
     # Setup mock objects for the test
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
     storage_client.bucket.return_value = bucket
     bucket.get_blob.return_value = blob
     blob.metadata = None
 
-    # Create a backend instance and call the method being tested
-    backend = Backend(storage_client)
+    # Call the method being tested
     with patch('builtins.print') as mock_print:
         result = backend.check_page_author("test_page")
 
@@ -405,46 +367,37 @@ def test_check_page_author_error_retrieving_metadata():
     assert result is 'Unknown'
 
 
-def test_empty_report():
+def test_empty_report(blob, bucket, storage_client, backend):
     '''
     Test reporting when when no report message was sent.
     '''
-    blob1 = MagicMock()
-    blob1.name = 'testPage'
-    storage_client = MagicMock()
-    storage_client.list_blobs.return_value = [blob1]
+    blob.name = 'testPage'
+    storage_client.bucket.get_blob.return_value = blob
 
-    backend = Backend(storage_client)
     result = backend.report('testPage', '')
 
     assert 'You need to enter a message' in result
 
 
-def test_report_when_page_is_not_in_database():
+def test_report_when_page_is_not_in_database(blob, bucket, storage_client, backend):
     '''
     Test reporting page when it is the first time a report has been made on that page
     '''
-    blob1 = MagicMock()
-    blob1.name = 'testPage'
-    storage_client = MagicMock()
-    storage_client.list_blobs.return_value = [blob1]
+    blob.name = 'testPage'
+    storage_client.bucket.get_blob.return_value = blob
 
-    backend = Backend(storage_client)
     result = backend.report('testPage2', 'Test message')
 
     assert 'Your report was sent successfully.' in result
 
 
-def test_report_when_page_is_in_database():
+def test_report_when_page_is_in_database(blob, bucket, storage_client, backend):
     '''
     Test reporting page when it has been reported before.
     '''
-    blob1 = MagicMock()
-    blob1.name = 'testPage'
-    storage_client = MagicMock()
-    storage_client.list_blobs.return_value = [blob1]
+    blob.name = 'testPage'
+    storage_client.bucket.get_blob.return_value = blob
 
-    backend = Backend(storage_client)
-    result = backend.report('testPage2', 'Test message')
+    result = backend.report('testPage', 'Test message')
 
     assert 'Your report was sent successfully.' in result
