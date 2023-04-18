@@ -269,6 +269,8 @@ def test_page_is_viewed_by_not_signed_in_user(mock_check_page_author,
     resp = client.get('pages/test_page')
     assert resp.status_code == 200
     assert b'Report' in resp.data
+    assert b'Delete' not in resp.data
+    assert b'Edit' not in resp.data
     assert b'sample page content' in resp.data
 
 

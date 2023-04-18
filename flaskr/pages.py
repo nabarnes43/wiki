@@ -149,7 +149,7 @@ def make_endpoints(app, login_manager):
         author = backend.check_page_author(page_title)
         if current_user.is_authenticated:
             name = current_user.name
-            isAuthor = True if name == author else False
+            isAuthor = name == author
             return render_template('pageDetails.html',
                                    isAuthor=isAuthor,
                                    title=page_title,

@@ -73,9 +73,9 @@ class Backend:
             If the upload was unsuccessulf, the reason why would be displayed.
         '''
 
-        if data == b'' or data == '':
+        if len(data) <= 0:
             if override:
-                return 'You cannot delete all the contents of a pge. Please delete the page instead.'
+                return 'Page contents cannot be empty'
             return 'Please upload a file.'
 
         if destination_blob_name == '':
@@ -88,12 +88,15 @@ class Backend:
             if destination_blob_name == blob.name and override == False:
                 return 'Upload failed. You cannot overrite an existing page'
 
-        blob = bucket.blob(destination_blob_name)
+        try:
+            blob = bucket.blob(destination_blob_name)
+            # Set the x-goog-meta-author metadata header
+            blob.metadata = {'author': username}
 
-        # Set the x-goog-meta-author metadata header
-        blob.metadata = {'author': username}
+            blob.upload_from_string(data)
 
-        blob.upload_from_string(data)
+        except Exception as e:
+            return f"Network Error: {e}. Please try again later."
 
         if override:
             return f"The page titled {destination_blob_name} was successfully updated."
@@ -112,8 +115,14 @@ class Backend:
         blob = bucket.get_blob(page)
         if blob == None:
             blob = bucket.blob(page)
+            blob.upload_from_string(message)
 
-        blob.upload_from_string(message)
+        else:
+            new_report = message + '\n'
+            with blob.open('r') as f:
+                new_report += str(f.read())
+            with blob.open('w') as f:
+                f.write(new_report)
         return "Your report was sent successfully."
 
     def sign_up(self, name, password):
@@ -202,7 +211,6 @@ class Backend:
         If the specified blob does not exist or does not have an author metadata, returns None.
         If an error occurs while retrieving the metadata, returns None and prints an error message.
         """
-
         bucket = self.storage_client.bucket("sdswiki_contents")
         blob = bucket.get_blob(page_name)
         if blob:
@@ -212,13 +220,13 @@ class Backend:
                 if author:
                     return author
                 else:
-                    return 'Unknown'
+                    return None
 
             except AttributeError:
-                return 'Unknown'
+                return None
 
         else:
-            return 'Unknown'
+            return None
 
     def delete_page(self, name):
         '''
