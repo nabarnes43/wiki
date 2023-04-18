@@ -347,7 +347,7 @@ def test_check_page_author_exists():
 
 def test_check_page_author_no_author_metadata():
     """
-    Test that None is returned when the blob exists but does not have an author metadata.
+    Test that Unknown is returned when the blob exists but does not have an author metadata.
     """
     # Setup mock objects for the test
     storage_client = MagicMock()
@@ -368,7 +368,7 @@ def test_check_page_author_no_author_metadata():
 
 def test_check_page_author_blob_does_not_exist():
     """
-    Test that None is returned when the specified blob does not exist.
+    Test that Unknown is returned when the specified blob does not exist.
     """
     # Setup mock objects for the test
     storage_client = MagicMock()
@@ -386,7 +386,7 @@ def test_check_page_author_blob_does_not_exist():
 
 def test_check_page_author_error_retrieving_metadata():
     """
-    Test that None is returned and an error message is printed when an error occurs while retrieving metadata.
+    Test that Unknown is returned and an error message is printed when an error occurs while retrieving metadata.
     """
     # Setup mock objects for the test
     storage_client = MagicMock()
