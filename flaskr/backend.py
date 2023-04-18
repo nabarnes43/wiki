@@ -103,14 +103,9 @@ class Backend:
         if message == '':
             return 'You need to enter a message'
         bucket = self.storage_client.bucket('sds_reports')
-        blobs = self.storage_client.list_blobs('sds_reports')
-        existing_blob = False
-        for blob in blobs:
-            if blob == page:
-                blob = bucket.get_blob(page)
-                existing_blob = True
-        if not existing_blob:
-            blob = bucket.blob(page)
+
+        blob = bucket.get_blob(page)
+        if blob == None: blob = bucket.blob(page)
 
         blob.upload_from_string(message)
         return "Your report was sent successfully."
@@ -208,7 +203,7 @@ class Backend:
             try:
                 metadata = blob.metadata
                 author = metadata.get('author')
-                if author is not None:
+                if author:
                     return author
                 else:
                     return 'Unknown'

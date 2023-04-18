@@ -46,9 +46,8 @@
         <div class="dropdown-content">
         <a href="/edit/{{title}}">Edit</a>
         <a onclick="confirmation()">Delete</a>
-        {% endif %}
 
-        {% if isAuthor == False %}
+        {% else %}
         <button>Options</button>
         <div class="dropdown-content">
         <a href="/report/{{title}}">Report</a>
