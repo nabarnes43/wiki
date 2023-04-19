@@ -7,8 +7,6 @@ import pytest
 import io
 
 
-# See https://flask.palletsprojects.com/en/2.2.x/testing/
-# for more info on testing
 @pytest.fixture
 def app():
     app = create_app({
@@ -32,7 +30,10 @@ def test_home_page(client):
     assert b"This wiki is dedicated to providing information and insight into the lives and works of the most influential and notable people in the field of computer science. From pioneers of computer programming and artificial intelligence to modern-day innovators in cybersecurity and machine learning, this wiki seeks to showcase the incredible contributions made by these individuals to the world of computer science." in resp.data
 
 
-def skip_test_about_page(client, monkeypatch):
+def test_about_page(client, monkeypatch):
+    nasir_image_data = b"nasir image data"
+    elei_image_data = b"elei image data"
+    dimitri_image_data = b"dimitri image data"
 
     def mock_get_image(self, name):
         return b''
@@ -178,7 +179,7 @@ def test_login_page(client):
 def test_login_wrong_username(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return "Username not found"
+        return False
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
@@ -187,14 +188,14 @@ def test_login_wrong_username(client, monkeypatch):
                            'password': 'testing123',
                        })
     assert resp.status_code == 200
-    assert b'The username is incorrect' in resp.data
+    assert b"Incorrect password or username" in resp.data
 
 
 #Testing that users are sent to the right page when the wrong password is entered
 def test_login_wrong_password(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return 'Incorrect Password'
+        return False
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
@@ -203,14 +204,14 @@ def test_login_wrong_password(client, monkeypatch):
                            'password': 'testing76576',
                        })
     assert resp.status_code == 200
-    assert b'An incorrect password was entered' in resp.data
+    assert b"Incorrect password or username" in resp.data
 
 
 #Testing that users are able to login and logout successfully
 def test_login_and_logout_successful(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return 'Sign In Successful'
+        return True
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',

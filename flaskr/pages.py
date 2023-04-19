@@ -1,5 +1,3 @@
-# ---- YOUR APP STARTS HERE ----
-# -- Import section --
 from flask import Flask, flash
 from flask import render_template
 from flask_login import login_user, current_user, logout_user, login_required
@@ -8,7 +6,6 @@ from .backend import Backend
 from .user import User
 from .form import LoginForm
 from base64 import b64encode
-from .search_algo import search_algo
 
 
 def make_endpoints(app, login_manager):
@@ -37,15 +34,16 @@ def make_endpoints(app, login_manager):
         form = LoginForm()
         if form.validate_on_submit():
             user = User(form.username.data)
-            username = form.username.data
             status = backend.sign_in(form.username.data, form.password.data)
-            if status == 'Sign In Successful':
+            if status:
                 login_user(user, remember=True)
                 return render_template('main.html', name=current_user.name)
-            elif status == 'Incorrect Password':
-                return "An incorrect password was entered"
-            else:
-                return "The username is incorrect"
+            elif not status:
+                err = "Incorrect password or username"
+                return render_template('login.html',
+                                       form=form,
+                                       user=current_user,
+                                       err=err)
         return render_template('login.html', form=form, user=current_user)
 
     # Loads the user (used by flask login)
@@ -168,7 +166,7 @@ def make_endpoints(app, login_manager):
         if request.method == 'POST':
             if 'name' in request.form:
                 search_content = str(request.form['name'])
-                print(search_algo(search_content))
+                print(search_content)
 
                 #TODO use content to search backend for a list.
                 backend = Backend()
@@ -179,6 +177,16 @@ def make_endpoints(app, login_manager):
                 return "Missing 'name' field in form"
         else:
             return render_template('search.html')
+
+    @app.route("/pages/<page_title>", methods=['GET'])
+    def page_details(page_title):
+        '''
+        displays the details of the specific wiki page selected.
+        '''
+        backend = Backend()
+        page = backend.get_wiki_page(page_title)
+
+        return render_template('pages.html', page=page)
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
