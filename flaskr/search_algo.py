@@ -1,27 +1,20 @@
-def levenshtein_distance(str1: str, str2: str) -> float:
-    """
-    Computes the Levenshtein distance between two strings.
+def levenshtein_distance(string1, string2):
+    len1, len2 = len(string1), len(string2)
+    dp = [[0 for _ in range(len2 + 1)] for _ in range(len1 + 1)]
 
-    Args:
-        str1: A string.
-        str2: A string.
+    for i in range(len1 + 1):
+        dp[i][0] = i
+    for j in range(len2 + 1):
+        dp[0][j] = j
 
-    Returns:
-        A float representing the normalized Levenshtein distance between str1 and str2.
-    """
-    m, n = len(str1), len(str2)
-    if m < n:
-        str1, str2 = str2, str1
-        m, n = n, m
-    if n == 0:
-        return m
-    prev = list(range(n + 1))
-    for i, char1 in enumerate(str1):
-        curr = [i + 1]
-        for j, char2 in enumerate(str2):
-            curr.append(
-                min(curr[-1] + 1, prev[j + 1] + 1, prev[j] + (char1 != char2)))
-        prev = curr
-    distance = prev[-1]
-    normalized_distance = distance / m
-    return normalized_distance
+    for i in range(1, len1 + 1):
+        for j in range(1, len2 + 1):
+            if string1[i - 1] == string2[j - 1]:
+                cost = 0
+            else:
+                cost = 1
+
+            dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1,
+                           dp[i - 1][j - 1] + cost)
+
+    return dp[len1][len2]

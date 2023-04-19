@@ -9,6 +9,11 @@ from .user import User
 from .form import LoginForm
 from base64 import b64encode
 
+#Constants
+
+#How many characters of differnce are allowed in search
+MAX_CHAR_DIST = 1
+
 
 def make_endpoints(app, login_manager):
 
@@ -148,31 +153,25 @@ def make_endpoints(app, login_manager):
         backend = Backend()
 
         if request.method == 'POST':
-            if 'name' in request.form:
-                search_content = str(request.form['name'])
+            search_content = str(request.form['name'])
 
-                if len(search_content) < 1:
-                    err = "Please enter a title or content"
-                    return render_template('search.html',
-                                           page_titles=[],
-                                           num_results=-1,
-                                           search_content=search_content,
-                                           err=err)
-
-                # The minimum relevance will be for 2 matching words.
-                relevance_score = 0.8955
-
-                all_pages = backend.search_pages(search_content,
-                                                 relevance_score)
-
-                num_results = len(all_pages)
-
+            if len(search_content) < 1:
+                err = "Please enter a title or content"
                 return render_template('search.html',
-                                       page_titles=all_pages,
-                                       num_results=num_results,
-                                       search_content=search_content)
-            else:
-                return "Missing 'name' field in form"
+                                       page_titles=[],
+                                       num_results=-1,
+                                       search_content=search_content,
+                                       err=err)
+
+            all_pages = backend.search_pages(search_content, MAX_CHAR_DIST)
+
+            num_results = len(all_pages)
+
+            return render_template('search.html',
+                                   page_titles=all_pages,
+                                   num_results=num_results,
+                                   search_content=search_content)
+
         else:
             return render_template('search.html',
                                    page_titles=[],

@@ -1,4 +1,3 @@
-# TODO(Project 1): Implement Backend according to the requirements.
 from google.cloud import storage
 from google.cloud import exceptions
 from .search_algo import levenshtein_distance
@@ -173,57 +172,73 @@ class Backend:
                 return True
         return False
 
-    def search_pages(self,
-                     search_content,
-                     max_relevance_score,
-                     wiki_searcher=None):
-        """
-        Searches the wiki for pages that match the search_content and returns
-        a list of page titles sorted by relevance.
-
-        Args:
-            search_content (str): The search term.
-            max_relevance_score (float): The maximum relevance score for a page to be considered a match.
-            wiki_searcher (WikiSearcher): The object used to search for wiki pages.
-
-        Returns:
-            List[str]: The list of page titles sorted by relevance.
-
-        """
-
+    def search_pages(self, search_content, max_distance, wiki_searcher=None):
         if wiki_searcher is None:
             wiki_searcher = self
 
         if len(search_content) < 1:
             return []
 
-        # Adjust max_relevance_score based on length of search_content
-        max_relevance_score = max_relevance_score / len(search_content)
+        search_words = search_content.lower().split()
+        print("search words " + str(search_words))
 
         search_results = []
 
         all_pages = wiki_searcher.get_all_page_names()
 
         for page_title in all_pages:
+            title_match_counter = 0
+            content_match_counter = 0
+
+            close_title_match_counter = 0
+            close_content_match_counter = 0
+            title_words = page_title.lower().split()
+            print("title words" + str(title_words))
             page_content = wiki_searcher.get_wiki_page(page_title)
+            page_words = page_content.lower().split()
 
-            # Calculate title and content distances
-            title_distance = levenshtein_distance(search_content, page_title)
-            content_similarity = levenshtein_distance(search_content,
-                                                      page_content)
+            for search_word in search_words:
 
-            # Combine title and content distances to get relevance score
-            relevance_score = 0.7 * content_similarity + 0.3 * title_distance
+                for title_word in title_words:
+                    if search_word == title_word:
+                        print("search word: " + search_word + " title word: " +
+                              title_word)
+                        title_match_counter += 1
+                    elif levenshtein_distance(search_word,
+                                              title_word) <= max_distance:
+                        print("close match: search word: " + search_word +
+                              " page word: " + title_word)
+                        close_title_match_counter += 1
 
-            # Scale relevance score by length of search
-            relevance_score /= len(search_content)
+                for page_word in page_words:
 
-            # Add page to search_results if relevance score is below max_relevance_score
-            if relevance_score <= max_relevance_score:
-                search_results.append((page_title, relevance_score))
+                    if search_word == page_word:
+                        print("match: search word: " + search_word +
+                              " page word: " + page_word)
+                        content_match_counter += 1
+                    elif levenshtein_distance(search_word,
+                                              page_word) <= max_distance:
+                        print("close match: search word: " + search_word +
+                              " page word: " + page_word)
+                        close_content_match_counter += 1
 
-        # Sort search_results by relevance score
-        search_results.sort(key=lambda x: x[1])
+            print("title_match_counter: " + str(title_match_counter) +
+                  " content_match_counter: " + str(content_match_counter) +
+                  " close_title_match_counter: " +
+                  str(close_title_match_counter) +
+                  " close_content_match_counter: " +
+                  str(close_content_match_counter))
+            match_score = title_match_counter * 0.8 + content_match_counter * 0.1 + close_title_match_counter * 0.08 + close_content_match_counter * 0.02
+            print(page_title + " match score: " + str(match_score))
+
+            if match_score > 0:
+                search_results.append((page_title, match_score))
+
+            print("")
+            print("")
+
+        # Sort search_results by match score
+        search_results.sort(key=lambda x: x[1], reverse=True)
 
         # Extract page titles from search_results and return them
         page_titles = [result[0] for result in search_results]
