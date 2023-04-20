@@ -74,7 +74,7 @@ class Backend:
 
         returns:
             A response message stating if your upload was successful or not.
-            If the upload was unsuccessulf, the reason why would be displayed.
+            If the upload was unsuccessful, the reason why would be displayed.
         '''
 <<<<<<< HEAD
 =======
