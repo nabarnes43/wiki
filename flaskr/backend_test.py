@@ -278,6 +278,7 @@ def test_get_image_successful():
     # assert the result
     assert result == content
 
+
 def test_check_page_author_exists(blob, bucket, storage_client, backend):
     """
     Test that the author name of a blob that exists and has an author metadata is correctly returned.
@@ -384,6 +385,7 @@ def test_report_when_page_is_in_database(blob, bucket, storage_client, backend):
 
     assert 'Your report was sent successfully.' in result
 
+
 #Testing that pages are properly being deleted
 def test_delete_page(blob, bucket, storage_client, backend):
     '''
@@ -404,6 +406,7 @@ def test_delete_page(blob, bucket, storage_client, backend):
 
     #Asserting that false was returned ("Page not found")
     assert result2 == False
+
 
 def test_check_page_author_exists(blob, bucket, storage_client, backend):
     """

@@ -229,7 +229,6 @@ class Backend:
         else:
             return None
 
-
     def delete_page(self, name):
         '''
         Allows pages to be deleted from the wiki. 
