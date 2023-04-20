@@ -278,6 +278,111 @@ def test_get_image_successful():
     # assert the result
     assert result == content
 
+def test_check_page_author_exists(blob, bucket, storage_client, backend):
+    """
+    Test that the author name of a blob that exists and has an author metadata is correctly returned.
+    """
+    # Setup mock objects for the test
+    author_name = "Test Author"
+    metadata = {'author': author_name}
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = blob
+    blob.metadata = metadata
+
+    # Call the method being tested
+    result = backend.check_page_author("test_page")
+
+    # Check that the expected author name is returned
+    assert result == author_name
+
+
+def test_check_page_author_no_author_metadata(blob, bucket, storage_client,
+                                              backend):
+    """
+    Test that None is returned when the blob exists but does not have an author metadata.
+    """
+    # Setup mock objects for the test
+    metadata = {}
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = blob
+    blob.metadata = metadata
+
+    # Call the method being tested
+    result = backend.check_page_author("test_page")
+
+    # Check that Unknown is returned
+    assert result is None
+
+
+def test_check_page_author_blob_does_not_exist(blob, bucket, storage_client,
+                                               backend):
+    """
+    Test that None is returned when the specified blob does not exist.
+    """
+    # Setup mock objects for the test
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = None
+
+    # Call the method being tested
+    result = backend.check_page_author("test_page")
+
+    # Check that Unknown is returned
+    assert result is None
+
+
+def test_check_page_author_error_retrieving_metadata(blob, bucket,
+                                                     storage_client, backend):
+    """
+    Test that None is returned and an error message is printed when an error occurs while retrieving metadata.
+    """
+    # Setup mock objects for the test
+    storage_client.bucket.return_value = bucket
+    bucket.get_blob.return_value = blob
+    blob.metadata = None
+
+    # Call the method being tested
+    with patch('builtins.print') as mock_print:
+        result = backend.check_page_author("test_page")
+
+    # Check that Unknown is returned and an error message is printed
+    assert result is None
+
+
+def test_empty_report(blob, bucket, storage_client, backend):
+    '''
+    Test reporting when when no report message was sent.
+    '''
+    blob.name = 'testPage'
+    storage_client.bucket.get_blob.return_value = blob
+
+    result = backend.report('testPage', '')
+
+    assert 'You need to enter a message' in result
+
+
+def test_report_when_page_is_not_in_database(blob, bucket, storage_client,
+                                             backend):
+    '''
+    Test reporting page when it is the first time a report has been made on that page
+    '''
+    blob.name = 'testPage'
+    storage_client.bucket.get_blob.return_value = blob
+
+    result = backend.report('testPage2', 'Test message')
+
+    assert 'Your report was sent successfully.' in result
+
+
+def test_report_when_page_is_in_database(blob, bucket, storage_client, backend):
+    '''
+    Test reporting page when it has been reported before.
+    '''
+    blob.name = 'testPage'
+    storage_client.bucket.get_blob.return_value = blob
+
+    result = backend.report('testPage', 'Test message')
+
+    assert 'Your report was sent successfully.' in result
 
 #Testing that pages are properly being deleted
 def test_delete_page(blob, bucket, storage_client, backend):

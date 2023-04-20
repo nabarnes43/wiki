@@ -200,25 +200,6 @@ class Backend:
 
         return img
 
-    def delete_page(self, name):
-        '''
-        Allows pages to be deleted from the wiki. 
-
-        Args:
-            name = The name of the page to delete
-
-        Returns:
-            True upon successful delete, false otherwise
-        '''
-        #Deleting the page's blob
-        blobs = self.storage_client.list_blobs('sdswiki_contents')
-        for blob in blobs:
-            if blob.name == name:
-                blob.delete()
-                return True
-        #Return false if it was never found
-        return False
-        
     def check_page_author(self, page_name):
         """
         Retrieves the author metadata of a blob with the given name from the Google Cloud Storage bucket.
@@ -247,3 +228,23 @@ class Backend:
 
         else:
             return None
+
+
+    def delete_page(self, name):
+        '''
+        Allows pages to be deleted from the wiki. 
+
+        Args:
+            name = The name of the page to delete
+
+        Returns:
+            True upon successful delete, false otherwise
+        '''
+        #Deleting the page's blob
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        for blob in blobs:
+            if blob.name == name:
+                blob.delete()
+                return True
+        #Return false if it was never found
+        return False
