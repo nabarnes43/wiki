@@ -1,5 +1,6 @@
 from google.cloud import storage
 from google.cloud import exceptions
+from flask_login import current_user
 import hashlib
 import io
 from flask import Flask
@@ -25,20 +26,19 @@ class Backend:
             The contents of the wiki page.
 
         Raises:
-            exceptions.NotFound: If the specified wiki page is not found.
             Exception: If there is a network error.
         """
+        bucket = self.storage_client.bucket("sdswiki_contents")
+        blob = bucket.get_blob(name)
+        if blob is None:
+            return f"Error: Wiki page {name} not found."
+
         try:
-            blob = self.pages_bucket.get_blob(name)
             with blob.open() as f:
                 content = f.read()
             return content
-
-        except exceptions.NotFound:
-            return f"Error: Wiki page {name} not found."
-
         except Exception as e:
-            return f"Error: {e}"
+            return f"Network error: {e}"
 
     def get_all_page_names(self):
         """Gets the names of all wiki pages.
@@ -64,7 +64,7 @@ class Backend:
         except Exception as e:
             return f"Error: {e}"
 
-    def upload(self, data, destination_blob_name):
+    def upload(self, data, destination_blob_name, username, override=False):
         '''
         Uploads page to Wiki server
 
@@ -74,25 +74,61 @@ class Backend:
 
         returns:
             A response message stating if your upload was successful or not.
-            If the upload was unsuccessulf, the reason why would be displayed.
+            If the upload was unsuccessful, the reason why would be displayed.
         '''
-        if data == b'':
+        if len(data) <= 0:
+            if override:
+                return 'Page contents cannot be empty'
             return 'Please upload a file.'
+
         if destination_blob_name == '':
             return 'Please provide the name of the page.'
 
-        for blob in self.pages_blobs:
-            if destination_blob_name == blob.name:
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        for blob in blobs:
+            if destination_blob_name == blob.name and not override:
                 return 'Upload failed. You cannot overrite an existing page'
 
-        blob = self.pages_bucket.get_blob(destination_blob_name)
-        blob.upload_from_string(data)
+        try:
+            blob = self.pages_bucket.blob(destination_blob_name)
+            # Set the x-goog-meta-author metadata header
+            blob.metadata = {'author': username}
 
+            blob.upload_from_string(data)
+
+        except Exception as e:
+            return f"Network Error: {e}. Please try again later."
+
+        if override:
+            return f"The page titled {destination_blob_name} was successfully updated."
         return f"{destination_blob_name} uploaded to Wiki."
+
+    def report(self, page, message):
+        '''
+        Saves the report message for a page in backend
+        Args: The page being reported, and the message of the report
+        Returns: A message stating the status of the report made.
+        '''
+        if message == '':
+            return 'You need to enter a message'
+        bucket = self.storage_client.bucket('sds_reports')
+
+        blob = bucket.get_blob(page)
+        if blob == None:
+            blob = bucket.blob(page)
+            blob.upload_from_string(message)
+
+        else:
+            new_report = message + '\n'
+            with blob.open('r') as f:
+                new_report += str(f.read())
+            with blob.open('w') as f:
+                f.write(new_report)
+        return "Your report was sent successfully."
 
     def sign_up(self, name, password):
         '''
-        Allows a person to create an account on the wiki if they are using it for th efirst time.
+        Allows a person to create an account on the wiki if they are using it for the first time.
 
         Args:
             name = This acts as the username of the person
@@ -103,7 +139,8 @@ class Backend:
             or if it was unsuccessful because the user already exists.
         '''
 
-        for blob in self.users_blobs:
+        blobs = self.storage_client.list_blobs('sdsusers_passwords')
+        for blob in blobs:
             if blob.name == name:
                 return f"user {name} already exists in the database. Please sign in."
 
@@ -163,6 +200,35 @@ class Backend:
 
         return img
 
+    def check_page_author(self, page_name):
+        """
+        Retrieves the author metadata of a blob with the given name from the Google Cloud Storage bucket.
+
+        Args:
+            name (str): The name of the blob to retrieve the author metadata from.
+
+        Returns:
+        If the specified blob exists and has an author metadata, returns the author's name as a string.
+        If the specified blob does not exist or does not have an author metadata, returns None.
+        If an error occurs while retrieving the metadata, returns None and prints an error message.
+        """
+        bucket = self.storage_client.bucket("sdswiki_contents")
+        blob = bucket.get_blob(page_name)
+        if blob:
+            try:
+                metadata = blob.metadata
+                author = metadata.get('author')
+                if author:
+                    return author
+                else:
+                    return None
+
+            except AttributeError:
+                return None
+
+        else:
+            return None
+
     def delete_page(self, name):
         '''
         Allows pages to be deleted from the wiki. 
@@ -174,7 +240,8 @@ class Backend:
             True upon successful delete, false otherwise
         '''
         #Deleting the page's blob
-        for blob in self.pages_blobs:
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        for blob in blobs:
             if blob.name == name:
                 blob.delete()
                 return True
