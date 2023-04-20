@@ -86,7 +86,7 @@ class Backend:
 
         blobs = self.storage_client.list_blobs('sdswiki_contents')
         for blob in blobs:
-            if destination_blob_name == blob.name:
+            if destination_blob_name == blob.name and not override:
                 return 'Upload failed. You cannot overrite an existing page'
 
         try:
