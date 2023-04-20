@@ -286,7 +286,7 @@ def test_delete_page(blob, bucket, storage_client, backend):
     '''
     #Setting up mock objects
     blob.name = 'testPage'
-    storage_client.list_blobs.return_value = [blob1]
+    storage_client.list_blobs.return_value = [blob]
 
     #Deleting the testPage
     result = backend.delete_page('testPage')

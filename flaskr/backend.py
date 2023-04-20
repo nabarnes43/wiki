@@ -38,7 +38,7 @@ class Backend:
                 content = f.read()
             return content
         except Exception as e:
-            return f"Error: {e}"
+            return f"Network error: {e}"
 
     def get_all_page_names(self):
         """Gets the names of all wiki pages.
@@ -76,10 +76,6 @@ class Backend:
             A response message stating if your upload was successful or not.
             If the upload was unsuccessful, the reason why would be displayed.
         '''
-<<<<<<< HEAD
-=======
-
->>>>>>> a65f0c1 (resolved merge reviews)
         if len(data) <= 0:
             if override:
                 return 'Page contents cannot be empty'
@@ -87,19 +83,16 @@ class Backend:
 
         if destination_blob_name == '':
             return 'Please provide the name of the page.'
-        for blob in self.pages_blobs:
+
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        for blob in blobs:
             if destination_blob_name == blob.name:
                 return 'Upload failed. You cannot overrite an existing page'
 
-<<<<<<< HEAD
-
-        blob = self.pages_bucket.blob(destination_blob_name)
-=======
         try:
-            blob = bucket.blob(destination_blob_name)
+            blob = self.pages_bucket.blob(destination_blob_name)
             # Set the x-goog-meta-author metadata header
             blob.metadata = {'author': username}
->>>>>>> a65f0c1 (resolved merge reviews)
 
             blob.upload_from_string(data)
 
@@ -146,7 +139,8 @@ class Backend:
             or if it was unsuccessful because the user already exists.
         '''
 
-        for blob in self.users_blobs:
+        blobs = self.storage_client.list_blobs('sdsusers_passwords')
+        for blob in blobs:
             if blob.name == name:
                 return f"user {name} already exists in the database. Please sign in."
 
@@ -217,7 +211,8 @@ class Backend:
             True upon successful delete, false otherwise
         '''
         #Deleting the page's blob
-        for blob in self.pages_blobs:
+        blobs = self.storage_client.list_blobs('sdswiki_contents')
+        for blob in blobs:
             if blob.name == name:
                 blob.delete()
                 return True
