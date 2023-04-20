@@ -177,8 +177,8 @@ class Backend:
         Stores a user's bookmark in a GCP blob
 
         Args:
-            name = The name of the user's account
             page_title = page to bookmark
+            name = The name of the user's account
 
         Returns:
             True for successful bookmarks, False otherwise
@@ -213,9 +213,14 @@ class Backend:
         Returns:
             list of bookmarks
         '''
+        new_data = ""
+        deleted_pages = False
         bookmarks_list = []
         bucket = self.storage_client.bucket('sds_bookmarks')
         blob = bucket.get_blob(name)
+
+        if blob == None:
+            return bookmarks_list
 
         #Reading in bookmark data
         with blob.open('r') as f:
@@ -223,13 +228,14 @@ class Backend:
 
         #Ensuring all bookmarked pages are still active (in the wiki)
         for line in bookmark_data:
-            line = line[:-1]
-            print(line)
-            if line not in existing_pages:
-                self.remove_bookmark(line, name)
+            if line[:-1] not in existing_pages:
+                deleted_pages = True
                 continue
-            bookmarks_list.append(line)
+            new_data += line
+            bookmarks_list.append(line[:-1])
 
+        if deleted_pages:
+            blob.upload_from_string(new_data)
         return bookmarks_list
 
     def remove_bookmark(self, title, name):
@@ -237,8 +243,8 @@ class Backend:
         Rewrites a blob's data and skips over the line to remove 
 
         Args:
-            name = The name of the user's account
             title = bookmark to remove
+            name = The name of the user's account
 
         Returns:
             Success message or error message
@@ -258,7 +264,6 @@ class Backend:
                 continue
             new_data += line
         #Upload new data
-        print(new_data)
         blob.upload_from_string(new_data)
         #Return success or error message
         if deleted:

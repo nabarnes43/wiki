@@ -6,6 +6,9 @@
 
 {% block content %}
 <ul>
+    {% if empty %}
+    <a> {{empty}} </a>
+    {% endif %}
     {% for title in page_titles %}
     <li><a href = "/pages/{{title}}">{{title}} 
     <a href="/remove_bookmark/{{title}}"><button type="button">Remove</button></a></li></a>

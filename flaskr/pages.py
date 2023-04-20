@@ -218,7 +218,7 @@ def make_endpoints(app, login_manager):
         all_bookmarks = backend.get_bookmarks(name, existing_pages)
 
         if not all_bookmarks:
-            return render_template('main.html')
+            return render_template('bookmark.html', empty = "No bookmarks added")
 
         return render_template('bookmark.html', page_titles=all_bookmarks)
 
@@ -239,5 +239,8 @@ def make_endpoints(app, login_manager):
         backend.remove_bookmark(title, name)
         existing_pages = backend.get_all_page_names()
         all_bookmarks = backend.get_bookmarks(name, existing_pages)
+
+        if not all_bookmarks:
+            return render_template('bookmark.html', empty = "No bookmarks added")        
 
         return render_template('bookmark.html', page_titles=all_bookmarks)
