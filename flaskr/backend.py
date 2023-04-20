@@ -164,6 +164,35 @@ class Backend:
 
         return img
 
+    def check_page_author(self, page_name):
+        """
+        Retrieves the author metadata of a blob with the given name from the Google Cloud Storage bucket.
+
+        Args:
+            name (str): The name of the blob to retrieve the author metadata from.
+
+        Returns:
+        If the specified blob exists and has an author metadata, returns the author's name as a string.
+        If the specified blob does not exist or does not have an author metadata, returns None.
+        If an error occurs while retrieving the metadata, returns None and prints an error message.
+        """
+        bucket = self.storage_client.bucket("sdswiki_contents")
+        blob = bucket.get_blob(page_name)
+        if blob:
+            try:
+                metadata = blob.metadata
+                author = metadata.get('author')
+                if author:
+                    return author
+                else:
+                    return None
+
+            except AttributeError:
+                return None
+
+        else:
+            return None
+
     def delete_page(self, name):
         blobs = self.storage_client.list_blobs('sdswiki_contents')
         for blob in blobs:

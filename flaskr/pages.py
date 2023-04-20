@@ -10,7 +10,7 @@ from .form import LoginForm
 from base64 import b64encode
 
 
-def make_endpoints(app, login_manager):
+def make_endpoints(app, login_manager, backend):
 
     @app.route("/")
     def home():
@@ -127,6 +127,35 @@ def make_endpoints(app, login_manager):
 
         return render_template('pages.html', page_titles=all_pages)
 
+    @app.route("/pages/<page_title>", methods=['GET'])
+    def page_details(page_title):
+        '''
+        displays the details of the specific wiki page selected.
+        '''
+        backend = Backend()
+
+        page = backend.get_wiki_page(page_title)
+        author = backend.check_page_author(page_title)
+        if current_user.is_authenticated:
+            name = str(current_user.get_id())
+            existing_pages = backend.get_all_page_names()
+            all_bookmarks = backend.get_bookmarks(name, existing_pages)
+            bookmarked = page_title in all_bookmarks
+            isAuthor = name == author
+            return render_template('pageDetails.html',
+                                   isAuthor=isAuthor,
+                                   title=page_title,
+                                   page=page,
+                                   name=name,
+                                   author=author,
+                                   bookmarked=bookmarked)
+
+        return render_template('pageDetails.html',
+                               isAuthor=False,
+                               title=page_title,
+                               page=page,
+                               author=author)
+
     @app.route("/search", methods=['GET', 'POST'])
     def search():
         if request.method == 'POST':
@@ -143,16 +172,6 @@ def make_endpoints(app, login_manager):
                 return "Missing 'name' field in form"
         else:
             return render_template('search.html')
-
-    @app.route("/pages/<page_title>", methods=['GET'])
-    def page_details(page_title):
-        '''
-        displays the details of the specific wiki page selected.
-        '''
-        backend = Backend()
-        page = backend.get_wiki_page(page_title)
-
-        return render_template('pages.html', page=page, page_title=page_title)
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
@@ -178,30 +197,36 @@ def make_endpoints(app, login_manager):
 
         return render_template('upload.html')
 
-    @app.route("/bookmark/<page_title>", methods=['GET'])
-    def bookmark(page_title):
+    @app.route("/bookmark/<isAuthor>/<page_title>/<name>/<author>",
+               methods=['GET'])
+    def bookmark(isAuthor, page_title, name, author):
         '''
         Allows users to bookmark a page. 
 
         Args:
+            isAuthor = bool value showing if the author matches the current user
             page_title = The name of the page to bookmark
+            name = name of current user
+            author = author of the selected wiki page
 
         Returns:
             Render template with success or error message.
         '''
-        backend = Backend()
-        page = backend.get_wiki_page(page_title)
-        if current_user.is_authenticated:
-            name = str(current_user.get_id())
-            backend.bookmark(page_title, name)
-            err = "Bookmark saved!"
-        else:
-            err = 'Must be signed in to bookmark!'
 
-        return render_template('pages.html',
+        backend.bookmark(page_title, name)
+        existing_pages = backend.get_all_page_names()
+        all_bookmarks = backend.get_bookmarks(name, existing_pages)
+        bookmarked = page_title in all_bookmarks
+        page = backend.get_wiki_page(page_title)
+
+        return render_template('pageDetails.html',
+                               isAuthor=isAuthor,
+                               title=page_title,
                                page=page,
-                               page_title=page_title,
-                               err=err)
+                               name=name,
+                               author=author,
+                               bookmarked=bookmarked,
+                               result='Bookmark added!')
 
     @app.route("/bookmarks", methods=['GET'])
     def view_bookmarks():
@@ -211,36 +236,38 @@ def make_endpoints(app, login_manager):
         Returns:
             Render template of main if there are no bookmarks, or the bookmark page if there are bookmarks
         '''
-        name = str(current_user.get_id())
 
-        backend = Backend()
         existing_pages = backend.get_all_page_names()
-        all_bookmarks = backend.get_bookmarks(name, existing_pages)
-
+        all_bookmarks = backend.get_bookmarks(current_user.name, existing_pages)
+        current_user.bookmarks = all_bookmarks
         if not all_bookmarks:
             return render_template('bookmark.html', empty="No bookmarks added")
 
         return render_template('bookmark.html', page_titles=all_bookmarks)
 
-    @app.route("/remove_bookmark/<title>", methods=['GET'])
-    def remove_bookmark(title):
+    @app.route("/remove_bookmark/<isAuthor>/<page_title>/<name>/<author>",
+               methods=['GET'])
+    def remove_bookmark(isAuthor, page_title, name, author):
         '''
         Allows a user to remove a bookmark. 
 
         Args:
-            title = The name of the bookmark to remove
+            isAuthor = bool value showing if the author matches the current user
+            page_title = The name of the page to bookmark
+            name = name of current user
+            author = author of the selected wiki page
 
         Returns:
             bookmark page showing updated bookmarks
         '''
-        backend = Backend()
-        name = str(current_user.get_id())
+        backend.remove_bookmark(page_title, name)
+        page = backend.get_wiki_page(page_title)
 
-        backend.remove_bookmark(title, name)
-        existing_pages = backend.get_all_page_names()
-        all_bookmarks = backend.get_bookmarks(name, existing_pages)
-
-        if not all_bookmarks:
-            return render_template('bookmark.html', empty="No bookmarks added")
-
-        return render_template('bookmark.html', page_titles=all_bookmarks)
+        return render_template('pageDetails.html',
+                               isAuthor=isAuthor,
+                               title=page_title,
+                               page=page,
+                               name=name,
+                               author=author,
+                               bookmarked=False,
+                               result='Bookmark deleted!')

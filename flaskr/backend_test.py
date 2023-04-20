@@ -3,8 +3,33 @@ import unittest
 from unittest.mock import MagicMock
 from google.cloud import exceptions
 from unittest.mock import patch
+import pytest
 
-# TODO(Project 1): Write tests for Backend methods.
+
+@pytest.fixture
+def blob():
+    mock_blob = MagicMock()
+    return mock_blob
+
+
+@pytest.fixture
+def bucket(blob):
+    mock_bucket = MagicMock()
+    mock_bucket.get_blob.return_value = blob
+    return mock_bucket
+
+
+@pytest.fixture
+def storage_client(bucket):
+    mock_client = MagicMock()
+    mock_client.bucket.return_value = bucket
+    return mock_client
+
+
+@pytest.fixture
+def backend(storage_client):
+    real_backend = Backend(storage_client)
+    return real_backend
 
 
 def test_get_wiki_successful():
@@ -306,115 +331,80 @@ def test_delete_page():
     assert result2 == False
 
 
-def test_bookmark_successful():
+def test_bookmark_successful(blob, bucket, storage_client, backend):
     '''
     Test that the bookmarks are properly stored.
     '''
     #mocking
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
-
     content = "Test Page"
-    storage_client.bucket.return_value = bucket
     blob.name = 'Dimitripl5'
-    bucket.get_blob.return_value = blob
     blob.open.return_value.__enter__.return_value.read.return_value = content
 
     #function call
-    backend = Backend(storage_client)
     result = backend.bookmark('Hello World', 'Dimitripl5')
 
     #ensure successful bookmarks are stored
     assert result == True
 
 
-def test_bookmark_unsuccessful():
+def test_bookmark_unsuccessful(blob, bucket, storage_client, backend):
     '''
     Test that unsuccessful bookmark attempts are caught.
     '''
     #mocking
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
-
     content = "Test Page"
-    storage_client.bucket.return_value = bucket
     blob.name = 'Dimitripl5'
-    bucket.get_blob.return_value = blob
     blob.open.return_value.__enter__.return_value.read.return_value = content
 
     #function call
-    backend = Backend(storage_client)
     result = backend.bookmark('Test Page', 'Dimitripl5')
 
     #ensuring that bookmarks are not repeated
     assert result == False
 
 
-def test_get_bookmarks():
+def test_get_bookmarks(blob, bucket, storage_client, backend):
     '''
     Test that all VALID bookmarks are being returned
     '''
     #Mocking
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
-
     content = ["Test Page\n"]
-    storage_client.bucket.return_value = bucket
     blob.name = 'Dimitripl5'
-    bucket.get_blob.return_value = blob
     blob.open.return_value.__enter__.return_value.readlines.return_value = content
 
     #function call
-    backend = Backend(storage_client)
     result = backend.get_bookmarks("Dimitripl5", ['Test Page', 'Hello World'])
 
     #ensure only active/valid bookmarks are returned
     assert result == ['Test Page']
 
 
-def test_remove_bookmark_successful():
+def test_remove_bookmark_successful(blob, bucket, storage_client, backend):
     '''
     Test that bookmarks are successfully being removed.
     '''
     #mocking
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
-
     content = ["Test Page\n", "Expected"]
-    storage_client.bucket.return_value = bucket
     blob.name = 'Dimitripl5'
-    bucket.get_blob.return_value = blob
     blob.open.return_value.__enter__.return_value.readlines.return_value = content
 
     #function call
-    backend = Backend(storage_client)
     result = backend.remove_bookmark("Test Page", 'Dimitripl5')
 
     #ensure bookmark is deleted
     assert result == 'Bookmark successfully deleted'
 
 
-def test_remove_bookmark_unsuccessful():
+def test_remove_bookmark_unsuccessful(blob, bucket, storage_client, backend):
     '''
     Test that error is returned when bookmark isn't properly removed
     '''
     #mocking
-    storage_client = MagicMock()
-    bucket = MagicMock()
-    blob = MagicMock()
-
     content = ["Test Page\n", "Expected"]
-    storage_client.bucket.return_value = bucket
     blob.name = 'Dimitripl5'
-    bucket.get_blob.return_value = blob
     blob.open.return_value.__enter__.return_value.readlines.return_value = content
 
     #function call
-    backend = Backend(storage_client)
     result = backend.remove_bookmark("random547865", 'randompl5')
 
     #Ensuring error is returned

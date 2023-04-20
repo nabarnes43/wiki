@@ -1,5 +1,5 @@
 from flaskr import pages
-from flaskr import backend
+from .backend import Backend
 from flask import Flask
 from flask_login import LoginManager
 import logging
@@ -31,7 +31,8 @@ def create_app(test_config=None):
 
     # TODO(Project 1): Make additional modifications here for logging in, backends
     # and additional endpoints.
-    pages.make_endpoints(app, login_manager)
+    backend = Backend()
+    pages.make_endpoints(app, login_manager, backend)
     login_manager.init_app(app)
     app.config['WTF_CSRF_ENABLED'] = False
     return app

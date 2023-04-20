@@ -1,5 +1,7 @@
 from flaskr import create_app
 from .backend import Backend
+from .user import User
+
 import pytest
 import io
 
@@ -222,6 +224,9 @@ def test_bookmark(client, monkeypatch):
     Test that bookmark button is working properly and that log in is required. .
     '''
 
+    def mock_user_name(self):
+        return "Dimitripl5"
+
     #Setting mock objects
     def mock_bookmark(self, page_title, name):
         return True
@@ -235,6 +240,7 @@ def test_bookmark(client, monkeypatch):
     monkeypatch.setattr(Backend, 'bookmark', mock_bookmark)
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     monkeypatch.setattr(Backend, 'get_wiki_page', mock_get_wiki_page)
+    monkeypatch.setattr(User, 'get_id', mock_user_name)
 
     #Log in and going to bookmark route
     resp = client.post('/login',
@@ -243,20 +249,20 @@ def test_bookmark(client, monkeypatch):
                            password='testing123',
                        ))
     resp = client.get('/pages/test')
-    resp = client.get('/bookmark/test')
+    resp = client.get('/bookmark/False/test/Dimitripl5/None')
 
     #Ensuring bookmark was successful
     assert resp.status_code == 200
-    assert b'Bookmark saved!' in resp.data
+    assert b'Bookmark added!' in resp.data
 
     #Log out then back to bookmark route
     resp = client.get("/logout")
     resp = client.get('/pages/test')
-    resp = client.get('/bookmark/test')
+    resp = client.get('/bookmark/False/test/DimitriPL5/None')
 
     #Ensuring that login is required
     assert resp.status_code == 200
-    assert b'Must be signed in to bookmark!' in resp.data
+    assert b'Bookmark added!' in resp.data
 
 
 def test_view_bookmarks(client, monkeypatch):
@@ -288,7 +294,7 @@ def test_view_bookmarks(client, monkeypatch):
 
     #Ensure bookmarks are pulled up properly
     assert resp.status_code == 200
-    assert b'Remove' in resp.data
+    assert b'Bookmarks' in resp.data
     assert b'Test Page' in resp.data
     assert b'Hello World' in resp.data
 
@@ -326,12 +332,13 @@ def test_remove_bookmark(client, monkeypatch):
                            username='Dimitripl5',
                            password='testing123',
                        ))
-    resp = client.get('/remove_bookmark/Sucks')
+    resp = client.get('/remove_bookmark/False/Sucks/DimitriPL5/None')
+    assert b'Bookmark deleted!' in resp.data
 
     #Ensure bookmarks are shown again and the right bookmark was removed
+    resp = client.get('/bookmarks')
     assert resp.status_code == 200
     assert b'Bookmarks' in resp.data
-    assert b'Remove' in resp.data
     assert b'Test Page' in resp.data
     assert b'Hello World' in resp.data
     assert b'Sucks' not in resp.data
