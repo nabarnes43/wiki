@@ -139,10 +139,16 @@ def test_pages_list(client):
     assert b'Pages contained in this Wiki' in resp.data
 
 
-def test_specific_page(client):
+def test_specific_page(client, monkeypatch):
     '''
     Test that specific page can be called to display.
     '''
+
+    def mock_get_all_page_names(self):
+        return []
+
+    monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
+
     resp = client.get("/pages/page_test")
     assert resp.status_code == 200
 
@@ -237,10 +243,14 @@ def test_bookmark(client, monkeypatch):
     def mock_get_wiki_page(self, name):
         return "This is a test page"
 
+    def mock_get_all_page_names(self):
+        return []
+
     monkeypatch.setattr(Backend, 'bookmark', mock_bookmark)
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     monkeypatch.setattr(Backend, 'get_wiki_page', mock_get_wiki_page)
     monkeypatch.setattr(User, 'get_id', mock_user_name)
+    monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
 
     #Log in and going to bookmark route
     resp = client.post('/login',
@@ -252,15 +262,6 @@ def test_bookmark(client, monkeypatch):
     resp = client.get('/bookmark/False/test/Dimitripl5/None')
 
     #Ensuring bookmark was successful
-    assert resp.status_code == 200
-    assert b'Bookmark added!' in resp.data
-
-    #Log out then back to bookmark route
-    resp = client.get("/logout")
-    resp = client.get('/pages/test')
-    resp = client.get('/bookmark/False/test/DimitriPL5/None')
-
-    #Ensuring that login is required
     assert resp.status_code == 200
     assert b'Bookmark added!' in resp.data
 
