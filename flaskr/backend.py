@@ -51,6 +51,7 @@ class Backend:
         """
         try:
             pages_names_list = []
+            blobs = self.storage_client.list_blobs('sdswiki_contents')
 
             if not self.pages_blobs:
                 return "Error: No pages found in bucket."
