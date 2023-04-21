@@ -4,7 +4,7 @@ lint:
  stage: build
  script:
  - pip install yapf==0.32.0
- - yapf --style google -i --recursive --diff .
+ - yapf --style google --recursive --diff .
  only:
  - merge_requests
 
@@ -25,5 +25,5 @@ prod:
  script:
  - echo $SERVICE_ACCOUNT > /tmp/$CI_PIPELINE_ID.json
  - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
- - gcloud app deploy --quiet --project $sds-project-378014
+ - gcloud app deploy --quiet --project sds-project-378014
  - gcloud app browse --project=sds-project-378014
