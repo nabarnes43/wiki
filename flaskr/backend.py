@@ -271,7 +271,8 @@ class Backend:
         #Adding bookmarks to existing blobs instead of overwritting data
         with blob.open('r') as f:
             bookmark_data = f.read()
-        if page_title not in bookmark_data:
+        info = bookmark_data.splitlines()
+        if page_title not in info:
             bookmark_data += page_title + '\n'
             blob.upload_from_string(bookmark_data)
             return True
