@@ -7,6 +7,11 @@ from .user import User
 from .form import LoginForm
 from base64 import b64encode
 
+#Constants
+
+#How many characters of difference are allowed in search
+MAX_CHAR_DIST = 1
+
 
 def make_endpoints(app, login_manager, backend):
 
@@ -65,7 +70,6 @@ def make_endpoints(app, login_manager, backend):
         Returns:
             The rendered about page with headshot images of the team members.
         """
-
         nasir_img = b64encode(
             backend.get_image("Nasir.Barnes.Headshot.JPG")).decode("utf-8")
         elei_img = b64encode(
@@ -155,17 +159,25 @@ def make_endpoints(app, login_manager, backend):
     @app.route("/search", methods=['GET', 'POST'])
     def search():
         if request.method == 'POST':
-            if 'name' in request.form:
-                search_content = str(request.form['name'])
+            search_content = str(request.form['name'])
 
-                #use content to search backend for a list.
-                all_pages = backend.get_all_page_names()
-
+            if len(search_content) < 1:
+                err = "Please enter a title or content"
                 return render_template('search.html',
-                                       page_titles=all_pages,
-                                       name=current_user.get_id())
-            else:
-                return "Missing 'name' field in form"
+                                       page_titles=[],
+                                       num_results=-1,
+                                       search_content=search_content,
+                                       err=err)
+
+            all_pages = backend.search_pages(search_content, MAX_CHAR_DIST)
+
+            num_results = len(all_pages)
+
+            return render_template('search.html',
+                                   page_titles=all_pages,
+                                   num_results=num_results,
+                                   search_content=search_content)
+
         else:
             return render_template('search.html', name=current_user.get_id())
 

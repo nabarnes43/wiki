@@ -1,6 +1,7 @@
 from google.cloud import storage
 from google.cloud import exceptions
 from flask_login import current_user
+from .search_algo import levenshtein_distance
 import hashlib
 import io
 from flask import Flask
@@ -344,3 +345,56 @@ class Backend:
         if deleted:
             return 'Bookmark successfully deleted'
         return 'Error'
+
+    def search_pages(self, search_content, max_distance, wiki_searcher=None):
+        if wiki_searcher is None:
+            wiki_searcher = self
+
+        if len(search_content) < 1:
+            return []
+
+        search_words = search_content.lower().split()
+
+        search_results = []
+
+        all_pages = wiki_searcher.get_all_page_names()
+
+        for page_title in all_pages:
+            title_match_counter = 0
+            content_match_counter = 0
+
+            close_title_match_counter = 0
+            close_content_match_counter = 0
+            title_words = page_title.lower().split()
+            page_content = wiki_searcher.get_wiki_page(page_title)
+            page_words = page_content.lower().split()
+
+            for search_word in search_words:
+
+                for title_word in title_words:
+                    if search_word == title_word:
+                        title_match_counter += 1
+                    elif levenshtein_distance(search_word,
+                                              title_word) <= max_distance:
+                        close_title_match_counter += 1
+
+                for page_word in page_words:
+
+                    if search_word == page_word:
+                        content_match_counter += 1
+                    elif levenshtein_distance(search_word,
+                                              page_word) <= max_distance:
+                        close_content_match_counter += 1
+
+            match_score = title_match_counter * 0.8 + content_match_counter * 0.1 + close_title_match_counter * 0.08 + close_content_match_counter * 0.02
+
+            if match_score > 0:
+                search_results.append((page_title, match_score))
+
+        # Sort search_results by match score
+        search_results.sort(key=lambda x: x[1], reverse=True)
+
+        # Extract page titles from search_results and return them
+        page_titles = [result[0] for result in search_results]
+
+        return page_titles
