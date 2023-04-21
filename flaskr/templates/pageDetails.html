@@ -3,6 +3,10 @@
 {% block page_name %}
 <h1>{{title}}</h1>
 <h3>Page author: {{author}}</h3>
+<font color="Green">  
+    {{result}}
+    </font>
+
 {% endblock %}
 
 {% block content %}
@@ -40,10 +44,12 @@
 <ul>
     {{page}}
 
-    <div class="dropdown" style = "position:absolute; right:20px; top:20px">
-        {% if isAuthor %}
+    <div class="dropdown" style = "position:absolute; right:55px; top:20px">
+        {% if current_user.is_authenticated %}
+        
+        {% if isAuthor == True %}
         <button>Options</button>
-        <div class="dropdown-content">
+        <div class="dropdown-content">     
         <a href="/edit/{{title}}">Edit</a>
         <a onclick="confirmation()">Delete</a>
 
@@ -51,7 +57,19 @@
         <button>Options</button>
         <div class="dropdown-content">
         <a href="/report/{{title}}">Report</a>
+
+        {% if bookmarked == False %}  
+        <a href="/bookmark/{{isAuthor}}/{{title}}/{{name}}/{{author}}">Bookmark</a>
+        {% else %}    
+        <a href="/remove_bookmark/{{isAuthor}}/{{title}}/{{name}}/{{author}}">Unbookmark</a>  
         {% endif %}
+        {% endif %}
+        
+        {% else %}
+        <button>Options</button>
+        <div class="dropdown-content">
+        <a href="/report/{{title}}">Report</a>
+        {% endif %}        
         
         <script>
             function confirmation() {

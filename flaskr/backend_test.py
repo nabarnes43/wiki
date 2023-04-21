@@ -408,6 +408,86 @@ def test_delete_page(blob, bucket, storage_client, backend):
     assert result2 == False
 
 
+def test_bookmark_successful(blob, bucket, storage_client, backend):
+    '''
+    Test that the bookmarks are properly stored.
+    '''
+    #mocking
+    content = "Test Page"
+    blob.name = 'Dimitripl5'
+    blob.open.return_value.__enter__.return_value.read.return_value = content
+
+    #function call
+    result = backend.bookmark('Hello World', 'Dimitripl5')
+
+    #ensure successful bookmarks are stored
+    assert result == True
+
+
+def test_bookmark_unsuccessful(blob, bucket, storage_client, backend):
+    '''
+    Test that unsuccessful bookmark attempts are caught.
+    '''
+    #mocking
+    content = "Test Page"
+    blob.name = 'Dimitripl5'
+    blob.open.return_value.__enter__.return_value.read.return_value = content
+
+    #function call
+    result = backend.bookmark('Test Page', 'Dimitripl5')
+
+    #ensuring that bookmarks are not repeated
+    assert result == False
+
+
+def test_get_bookmarks(blob, bucket, storage_client, backend):
+    '''
+    Test that all VALID bookmarks are being returned
+    '''
+    #Mocking
+    content = ["Test Page\n"]
+    blob.name = 'Dimitripl5'
+    blob.open.return_value.__enter__.return_value.readlines.return_value = content
+
+    #function call
+    result = backend.get_bookmarks("Dimitripl5", ['Test Page', 'Hello World'])
+
+    #ensure only active/valid bookmarks are returned
+    assert result == ['Test Page']
+
+
+def test_remove_bookmark_successful(blob, bucket, storage_client, backend):
+    '''
+    Test that bookmarks are successfully being removed.
+    '''
+    #mocking
+    content = ["Test Page\n", "Expected"]
+    blob.name = 'Dimitripl5'
+    blob.open.return_value.__enter__.return_value.readlines.return_value = content
+
+    #function call
+    result = backend.remove_bookmark("Test Page", 'Dimitripl5')
+
+    #ensure bookmark is deleted
+    assert result == 'Bookmark successfully deleted'
+
+
+def test_remove_bookmark_unsuccessful(blob, bucket, storage_client, backend):
+    '''
+    Test that error is returned when bookmark isn't properly removed
+    '''
+    #mocking
+    content = ["Test Page\n", "Expected"]
+    blob.name = 'Dimitripl5'
+    blob.open.return_value.__enter__.return_value.readlines.return_value = content
+
+    #function call
+    result = backend.remove_bookmark("random547865", 'randompl5')
+
+    #Ensuring error is returned
+    assert result == 'Error'
+
+
 def test_check_page_author_exists(blob, bucket, storage_client, backend):
     """
     Test that the author name of a blob that exists and has an author metadata is correctly returned.

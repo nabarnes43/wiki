@@ -1,5 +1,5 @@
 from flaskr import pages
-from flaskr import backend
+from .backend import Backend
 from flask import Flask
 from flask_login import LoginManager
 import logging
@@ -26,7 +26,8 @@ def create_app(test_config=None):
         # Load the test config if passed in.
         app.config.from_mapping(test_config)
 
-    pages.make_endpoints(app, login_manager)
+    backend = Backend()
+    pages.make_endpoints(app, login_manager, backend)
     login_manager.init_app(app)
     app.config['WTF_CSRF_ENABLED'] = False
     return app

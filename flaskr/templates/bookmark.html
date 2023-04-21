@@ -1,0 +1,18 @@
+{% extends "main.html" %}
+
+{% block page_name %}
+<h3>Bookmarks</h3>
+{% endblock %}
+
+{% block content %}
+<ul>
+    {% if empty %}
+    <a> {{empty}} </a>
+    {% endif %}
+    {% for title in page_titles %}
+    <li><a href = "/pages/{{title}}">{{title}} 
+    <br>
+    {% endfor %}
+    {{page}}
+</ul>
+{% endblock %}

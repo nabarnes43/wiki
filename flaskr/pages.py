@@ -8,7 +8,7 @@ from .form import LoginForm
 from base64 import b64encode
 
 
-def make_endpoints(app, login_manager):
+def make_endpoints(app, login_manager, backend):
 
     @app.route("/")
     def home():
@@ -129,6 +129,7 @@ def make_endpoints(app, login_manager):
         '''
         backend = Backend()
         all_pages = backend.get_all_page_names()
+
         if current_user.is_authenticated:
             return render_template('pages.html',
                                    page_titles=all_pages,
@@ -141,19 +142,21 @@ def make_endpoints(app, login_manager):
         '''
         displays the details of the specific wiki page selected.
         '''
-        backend = Backend()
-
         page = backend.get_wiki_page(page_title)
         author = backend.check_page_author(page_title)
         if current_user.is_authenticated:
-            name = current_user.name
+            name = str(current_user.get_id())
+            existing_pages = backend.get_all_page_names()
+            all_bookmarks = backend.get_bookmarks(name, existing_pages)
+            bookmarked = page_title in all_bookmarks
             isAuthor = name == author
             return render_template('pageDetails.html',
                                    isAuthor=isAuthor,
                                    title=page_title,
                                    page=page,
                                    name=name,
-                                   author=author)
+                                   author=author,
+                                   bookmarked=bookmarked)
 
         return render_template('pageDetails.html',
                                isAuthor=False,
@@ -257,3 +260,78 @@ def make_endpoints(app, login_manager):
                                report=True,
                                upload_status=report_result,
                                name=current_user.name)
+
+    @app.route("/bookmark/<isAuthor>/<page_title>/<name>/<author>",
+               methods=['GET'])
+    def bookmark(isAuthor, page_title, name, author):
+        '''
+        Allows users to bookmark a page. 
+
+        Args:
+            isAuthor = bool value showing if the author matches the current user
+            page_title = The name of the page to bookmark
+            name = name of current user
+            author = author of the selected wiki page
+
+        Returns:
+            Render template with success or error message.
+        '''
+
+        backend.bookmark(page_title, name)
+        existing_pages = backend.get_all_page_names()
+        all_bookmarks = backend.get_bookmarks(name, existing_pages)
+        bookmarked = page_title in all_bookmarks
+        page = backend.get_wiki_page(page_title)
+
+        return render_template('pageDetails.html',
+                               isAuthor=isAuthor,
+                               title=page_title,
+                               page=page,
+                               name=name,
+                               author=author,
+                               bookmarked=bookmarked,
+                               result='Bookmark added!')
+
+    @app.route("/bookmarks", methods=['GET'])
+    def view_bookmarks():
+        '''
+        Allows a user to view their bookmarks. 
+
+        Returns:
+            Render template of main if there are no bookmarks, or the bookmark page if there are bookmarks
+        '''
+
+        existing_pages = backend.get_all_page_names()
+        all_bookmarks = backend.get_bookmarks(current_user.name, existing_pages)
+        current_user.bookmarks = all_bookmarks
+        if not all_bookmarks:
+            return render_template('bookmark.html', empty="No bookmarks added")
+
+        return render_template('bookmark.html', page_titles=all_bookmarks)
+
+    @app.route("/remove_bookmark/<isAuthor>/<page_title>/<name>/<author>",
+               methods=['GET'])
+    def remove_bookmark(isAuthor, page_title, name, author):
+        '''
+        Allows a user to remove a bookmark. 
+
+        Args:
+            isAuthor = bool value showing if the author matches the current user
+            page_title = The name of the page to bookmark
+            name = name of current user
+            author = author of the selected wiki page
+
+        Returns:
+            bookmark page showing updated bookmarks
+        '''
+        backend.remove_bookmark(page_title, name)
+        page = backend.get_wiki_page(page_title)
+
+        return render_template('pageDetails.html',
+                               isAuthor=isAuthor,
+                               title=page_title,
+                               page=page,
+                               name=name,
+                               author=author,
+                               bookmarked=False,
+                               result='Bookmark deleted!')
