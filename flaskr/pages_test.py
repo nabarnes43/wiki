@@ -395,10 +395,12 @@ def test_page_is_viewed_by_author(mock_check_page_author, mock_wiki_page,
 @patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
 @patch("flaskr.backend.Backend.get_wiki_page",
        return_value=b"sample page content")
+@patch("flaskr.backend.Backend.get_all_page_names", return_value=['test_page'])
+@patch('flaskr.backend.Backend.get_bookmarks', return_value=[])
 @patch("flask_login.utils._get_user", return_value=MagicMock())
-def skip_test_page_is_not_viewed_by_author(mock_check_page_author,
-                                           mock_wiki_page, mock_logged_in,
-                                           client):
+def test_page_is_not_viewed_by_author(mock_check_page_author, mock_wiki_page,
+                                      mock_logged_in, mock_get_all_page_names,
+                                      mock_get_bookmarks, client):
     resp = client.get('pages/test_page')
     assert resp.status_code == 200
     assert b'Report' in resp.data
