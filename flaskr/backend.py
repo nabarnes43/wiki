@@ -13,8 +13,6 @@ class Backend:
         self.pages_bucket = self.storage_client.bucket('sdswiki_contents')
         self.users_bucket = self.storage_client.bucket('sdsusers_passwords')
         self.images_bucket = self.storage_client.bucket('sdsimages')
-        self.pages_blobs = self.storage_client.list_blobs('sdswiki_contents')
-        self.users_blobs = self.storage_client.list_blobs('sdsusers_passwords')
 
     def get_wiki_page(self, name):
         """Gets the contents of the specified wiki page.
@@ -28,8 +26,8 @@ class Backend:
         Raises:
             Exception: If there is a network error.
         """
-        bucket = self.storage_client.bucket("sdswiki_contents")
-        blob = bucket.get_blob(name)
+
+        blob = self.pages_bucket.get_blob(name)
         if blob is None:
             return f"Error: Wiki page {name} not found."
 
@@ -51,12 +49,13 @@ class Backend:
         """
         try:
             pages_names_list = []
+
             blobs = self.storage_client.list_blobs('sdswiki_contents')
 
-            if not self.pages_blobs:
-                return "Error: No pages found in bucket."
+            if not blobs:
+                return 'Error: No pages found in bucket.'
 
-            for blob in self.pages_blobs:
+            for blob in blobs:
                 pages_names_list.append(blob.name)
 
             return pages_names_list
@@ -168,7 +167,8 @@ class Backend:
         hashed = hashlib.sha3_256(salty_password).hexdigest()
         stored = False
 
-        for blob in self.users_blobs:
+        blobs = self.storage_client.list_blobs('sdsusers_passwords')
+        for blob in blobs:
             if username == blob.name:
                 with blob.open("r") as username:
                     secure_password = username.read()
@@ -212,8 +212,7 @@ class Backend:
         If the specified blob does not exist or does not have an author metadata, returns None.
         If an error occurs while retrieving the metadata, returns None and prints an error message.
         """
-        bucket = self.storage_client.bucket("sdswiki_contents")
-        blob = bucket.get_blob(page_name)
+        blob = self.pages_bucket.get_blob(page_name)
         if blob:
             try:
                 metadata = blob.metadata

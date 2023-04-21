@@ -47,7 +47,7 @@
     <div class="dropdown" style = "position:absolute; right:55px; top:20px">
         {% if current_user.is_authenticated %}
         
-        {% if isAuthor == True %}
+        {% if isAuthor %}
         <button>Options</button>
         <div class="dropdown-content">     
         <a href="/edit/{{title}}">Edit</a>
@@ -57,12 +57,12 @@
         <button>Options</button>
         <div class="dropdown-content">
         <a href="/report/{{title}}">Report</a>
+        {% endif %}
 
         {% if bookmarked == False %}  
-        <a href="/bookmark/{{isAuthor}}/{{title}}/{{name}}/{{author}}">Bookmark</a>
+        <a href="/bookmark/{{title}}/{{name}}">Bookmark</a>
         {% else %}    
-        <a href="/remove_bookmark/{{isAuthor}}/{{title}}/{{name}}/{{author}}">Unbookmark</a>  
-        {% endif %}
+        <a href="/remove_bookmark/{{title}}/{{name}}">Unbookmark</a>  
         {% endif %}
         
         {% else %}

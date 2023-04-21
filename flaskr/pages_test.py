@@ -60,12 +60,17 @@ def test_signup_page(client):
     assert b'<input type="submit" value="Signup"/>' in resp.data
 
 
-def skip_test_create_account_succesful_page(client):
+def test_create_account_succesful_page(client, monkeypatch):
     """
     GIVEN a Flask application
     WHEN the '/createaccount' page is posted with username and password
     THEN check that the response is successful and the username is displayed
     """
+
+    def mock_sign_up(self, username, password):
+        return 'User successfuly created!'
+
+    monkeypatch.setattr(Backend, 'sign_up', mock_sign_up)
 
     response = client.post('/createaccount',
                            data=dict(Username='testuser',
@@ -237,9 +242,6 @@ def test_bookmark(client, monkeypatch):
     Test that bookmark button is working properly and that log in is required. .
     '''
 
-    def mock_user_name(self):
-        return "Dimitripl5"
-
     #Setting mock objects
     def mock_bookmark(self, page_title, name):
         return True
@@ -250,19 +252,13 @@ def test_bookmark(client, monkeypatch):
     def mock_get_wiki_page(self, name):
         return "This is a test page"
 
-    def mock_get_bookmarks(self, name, existing_pages):
-        bookmarks = []
-        return bookmarks
-
-    def mock_get_all_page_names(self):
-        return ['test']
+    def mock_check_page_author(self, page_title):
+        return None
 
     monkeypatch.setattr(Backend, 'bookmark', mock_bookmark)
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     monkeypatch.setattr(Backend, 'get_wiki_page', mock_get_wiki_page)
-    monkeypatch.setattr(User, 'get_id', mock_user_name)
-    monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
-    monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
+    monkeypatch.setattr(Backend, 'check_page_author', mock_check_page_author)
 
     #Log in and going to bookmark route
     resp = client.post('/login',
@@ -270,7 +266,7 @@ def test_bookmark(client, monkeypatch):
                            username='Dimitripl5',
                            password='testing123',
                        ))
-    resp = client.get('/bookmark/False/test/Dimitripl5/None')
+    resp = client.get('/bookmark/test/Dimitripl5')
 
     #Ensuring bookmark was successful
     assert resp.status_code == 200
@@ -311,7 +307,7 @@ def test_view_bookmarks(client, monkeypatch):
     assert b'Hello World' in resp.data
 
 
-def skip_test_remove_bookmark(client, monkeypatch):
+def test_remove_bookmark(client, monkeypatch):
     '''
     Test that remove bookmark button redirects back to bookmark page.
     '''
@@ -333,6 +329,10 @@ def skip_test_remove_bookmark(client, monkeypatch):
     def mock_sign_in(self, username, password):
         return 'Sign In Successful'
 
+    def mock_check_page_author(self, page_title):
+        return None
+
+    monkeypatch.setattr(Backend, 'check_page_author', mock_check_page_author)
     monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     monkeypatch.setattr(Backend, 'remove_bookmark', mock_remove_bookmark)
@@ -344,7 +344,7 @@ def skip_test_remove_bookmark(client, monkeypatch):
                            username='Dimitripl5',
                            password='testing123',
                        ))
-    resp = client.get('/remove_bookmark/False/Sucks/DimitriPL5/None')
+    resp = client.get('/remove_bookmark/Sucks/DimitriPL5')
     assert b'Bookmark deleted!' in resp.data
 
     #Ensure bookmarks are shown again and the right bookmark was removed
@@ -364,9 +364,12 @@ user.get_id.return_value = 'Elei'
 @patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
 @patch("flaskr.backend.Backend.get_wiki_page",
        return_value=b"sample page content")
+@patch("flaskr.backend.Backend.get_all_page_names", return_value=['test_page'])
+@patch('flaskr.backend.Backend.get_bookmarks', return_value=[])
 @patch("flask_login.utils._get_user", return_value=user)
-def skip_test_page_is_viewed_by_author(mock_check_page_author, mock_wiki_page,
-                                       mock_logged_in, client):
+def test_page_is_viewed_by_author(mock_check_page_author, mock_wiki_page,
+                                  mock_logged_in, mock_get_all_page_names,
+                                  mock_get_bookmarks, client):
     resp = client.get('pages/test_page')
     assert resp.status_code == 200
     #assert b'Delete' in resp.data
@@ -430,7 +433,7 @@ def test_save_report(mock_report_page, mock_logged_in, client):
 @patch("flaskr.backend.Backend.report",
        return_value='You need to enter a message')
 @patch("flask_login.utils._get_user", return_value=MagicMock())
-def test_no_report_mdae(mock_report_page, mock_logged_in, client):
+def test_no_report_made(mock_report_page, mock_logged_in, client):
     resp = client.post('/save_report/sample page', data={'report': ''})
     assert resp.status_code == 200
     assert b'Report Status:' in resp.data
