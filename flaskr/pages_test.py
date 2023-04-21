@@ -2,12 +2,12 @@ from flaskr import create_app
 from .backend import Backend
 from unittest.mock import patch
 from .user import User
+from unittest.mock import MagicMock
+from unittest import mock
 import pytest
 import io
 
 
-# See https://flask.palletsprojects.com/en/2.2.x/testing/
-# for more info on testing
 @pytest.fixture
 def app():
     app = create_app({
@@ -129,6 +129,15 @@ def test_create_account_exception(client, monkeypatch):
     assert response.status_code == 200
     assert b'Account creation failed: Test exception' in response.data
 
+@patch("flaskr.backend.Backend.get_all_page_names",
+       return_value=['Trial page 1', 'Trial page 2'])
+def test_pages_list(mock_get_all_page_names, client):
+    '''
+    Test that it displays all the pagas available for view on the wiki.
+    '''
+    resp = client.get("/pages")
+    assert resp.status_code == 200
+    assert b'Pages contained in this Wiki' in resp.data
 
 @patch("flaskr.backend.Backend.get_wiki_page",
        return_value=b"sample page content")
@@ -146,17 +155,9 @@ def test_specific_page(mock_get_wiki_page, mock_check_page_author, mock_get_id,
     assert b'page_test' in resp.data
     assert b'fake author' in resp.data
 
-
-def test_pages_list(client):
-    '''
-    Test that it displays all the pagas available for view on the wiki.
-    '''
-    resp = client.get("/pages")
-    assert resp.status_code == 200
-    assert b'Pages contained in this Wiki' in resp.data
-
-
-def test_upload_page(client):
+@patch("flaskr.backend.Backend.upload", return_value=b"upload sucessful")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_upload_page(mock_upload, mock_logged_in, client):
     '''
     Test that the upload page displays correctly when called.
     '''
@@ -180,7 +181,7 @@ def test_login_page(client):
 def test_login_wrong_username(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return "Username not found"
+        return False
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
@@ -189,14 +190,14 @@ def test_login_wrong_username(client, monkeypatch):
                            'password': 'testing123',
                        })
     assert resp.status_code == 200
-    assert b'The username is incorrect' in resp.data
+    assert b"Incorrect password or username" in resp.data
 
 
 #Testing that users are sent to the right page when the wrong password is entered
 def test_login_wrong_password(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return 'Incorrect Password'
+        return False
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
@@ -205,14 +206,14 @@ def test_login_wrong_password(client, monkeypatch):
                            'password': 'testing76576',
                        })
     assert resp.status_code == 200
-    assert b'An incorrect password was entered' in resp.data
+    assert b"Incorrect password or username" in resp.data
 
 
 #Testing that users are able to login and logout successfully
 def test_login_and_logout_successful(client, monkeypatch):
 
     def mock_sign_in(self, username, password):
-        return 'Sign In Successful'
+        return True
 
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     resp = client.post('/login',
@@ -350,3 +351,126 @@ def test_remove_bookmark(client, monkeypatch):
     assert b'Test Page' in resp.data
     assert b'Hello World' in resp.data
     assert b'Sucks' not in resp.data
+
+# Test correct options are displayed when user is author
+user = MagicMock()
+user.name = 'Elei'
+
+
+@patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+@patch("flask_login.utils._get_user", return_value=user)
+def test_page_is_viewed_by_author(mock_check_page_author, mock_wiki_page,
+                                  mock_logged_in, client):
+    resp = client.get('pages/test_page')
+    assert resp.status_code == 200
+    assert b'Delete' in resp.data
+    assert b'Edit' in resp.data
+    assert b'Report' not in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test correct options are displayed when user is not author
+@patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_page_is_not_viewed_by_author(mock_check_page_author, mock_wiki_page,
+                                      mock_logged_in, client):
+    resp = client.get('pages/test_page')
+    assert resp.status_code == 200
+    assert b'Report' in resp.data
+    assert b'Delete' not in resp.data
+    assert b'Edit' not in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test correct options are displayed when user is not signed in
+@patch("flaskr.backend.Backend.check_page_author", return_value='Elei')
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+def test_page_is_viewed_by_not_signed_in_user(mock_check_page_author,
+                                              mock_wiki_page, client):
+    resp = client.get('pages/test_page')
+    assert resp.status_code == 200
+    assert b'Report' in resp.data
+    assert b'Delete' not in resp.data
+    assert b'Edit' not in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test report brings up the right page
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_user_can_make_report(mock_logged_in, client):
+    resp = client.get('/report/sample page')
+    assert resp.status_code == 200
+    assert b'Write your report for the page:' in resp.data
+    assert b'sample page' in resp.data
+
+
+# Test report is saved
+@patch("flaskr.backend.Backend.report",
+       return_value="Your report was sent successfully.")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_save_report(mock_report_page, mock_logged_in, client):
+    resp = client.post('/save_report/sample page',
+                       data={'report': 'I like this page'})
+    assert resp.status_code == 200
+    assert b'Report Status:' in resp.data
+    assert b"Your report was sent successfully." in resp.data
+
+
+# Test return message if no report is made
+@patch("flaskr.backend.Backend.report",
+       return_value='You need to enter a message')
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_no_report_mdae(mock_report_page, mock_logged_in, client):
+    resp = client.post('/save_report/sample page', data={'report': ''})
+    assert resp.status_code == 200
+    assert b'Report Status:' in resp.data
+    assert b'You need to enter a message' in resp.data
+
+
+# Test page is successfully deleted
+@patch("flaskr.backend.Backend.delete_page", return_value=True)
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_delete_page_successful(mock_delete_page, mock_logged_in, client):
+    resp = client.get('/delete/sample page')
+    assert resp.status_code == 200
+    assert b'The page sample page, has been deleted.'
+
+
+# Test delete page is unsuccessful
+@patch("flaskr.backend.Backend.delete_page", return_value=False)
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_delete_page_unsuccessful(mock_delete_page, mock_logged_in, client):
+    resp = client.get('/delete/sample page')
+    assert resp.status_code == 200
+    assert b'The page was not deleted. Please try again later.'
+
+
+# Test that page contents is displayed in editable text box when edit is clicked
+# Mock the backend functions
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_edit(mock_get_wiki_page, mock_logged_in, client):
+    # call the page
+    resp = client.get('/edit/sample page title')
+    # Check that return result is correct
+    assert resp.status_code == 200
+    assert b'Make your edits' in resp.data
+    assert b'sample page title' in resp.data
+    assert b'sample page content' in resp.data
+
+
+# Test edit is saved
+@patch("flaskr.backend.Backend.upload", return_value=b"upload sucessful")
+@patch("flask_login.utils._get_user", return_value=MagicMock())
+def test_save_edit(mock_upload, mock_logged_in, client):
+    resp = client.post('/save_edit/sample page',
+                       data={'content': 'random data'})
+    assert b'Result for editing' in resp.data
+    assert b'sample page' in resp.data
+    assert b"upload sucessful" in resp.data
