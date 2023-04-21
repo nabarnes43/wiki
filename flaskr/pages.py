@@ -1,5 +1,3 @@
-# ---- YOUR APP STARTS HERE ----
-# -- Import section --
 from flask import Flask, flash
 from flask import render_template
 from flask_login import login_user, current_user, logout_user, login_required
@@ -28,7 +26,7 @@ def make_endpoints(app, login_manager, backend):
             return render_template("main.html", name=current_user.name)
         return render_template("main.html")
 
-    #Allowing users to login, users are directed back to the home page after successful logins
+    # Allowing users to login, users are directed back to the home page after successful logins
     @app.route("/login", methods=['GET', 'POST'])
     def sign_in():
         backend = Backend()
@@ -36,23 +34,24 @@ def make_endpoints(app, login_manager, backend):
         form = LoginForm()
         if form.validate_on_submit():
             user = User(form.username.data)
-            username = form.username.data
             status = backend.sign_in(form.username.data, form.password.data)
-            if status == 'Sign In Successful':
+            if status:
                 login_user(user, remember=True)
                 return render_template('main.html', name=current_user.name)
-            elif status == 'Incorrect Password':
-                return "An incorrect password was entered"
-            else:
-                return "The username is incorrect"
+            elif not status:
+                err = "Incorrect password or username"
+                return render_template('login.html',
+                                       form=form,
+                                       user=current_user,
+                                       err=err)
         return render_template('login.html', form=form, user=current_user)
 
-    #Loads the user (used by flask login)
+    # Loads the user (used by flask login)
     @login_manager.user_loader
     def load_user(user_id):
         return User(user_id)
 
-    #Allowing users to logout, login is required before this can be used
+    # Allowing users to logout, login is required before this can be used
     @app.route("/logout", methods=['POST', 'GET'])
     @login_required
     def logout():
@@ -75,6 +74,12 @@ def make_endpoints(app, login_manager, backend):
             backend.get_image("Mary.Elei.Nkata.jpeg")).decode("utf-8")
         dimitri_img = b64encode(
             backend.get_image("Dimitri.Pierre-Louis.JPG")).decode("utf-8")
+        if current_user.is_authenticated:
+            return render_template("about.html",
+                                   name=current_user.name,
+                                   nasir_img=nasir_img,
+                                   elei_img=elei_img,
+                                   dimitri_img=dimitri_img)
         return render_template("about.html",
                                nasir_img=nasir_img,
                                elei_img=elei_img,
@@ -124,6 +129,10 @@ def make_endpoints(app, login_manager, backend):
         '''
         backend = Backend()
         all_pages = backend.get_all_page_names()
+        if current_user.is_authenticated:
+            return render_template('pages.html',
+                                   page_titles=all_pages,
+                                   name=current_user.name)
 
         return render_template('pages.html', page_titles=all_pages)
 
@@ -188,10 +197,13 @@ def make_endpoints(app, login_manager, backend):
             data_file = request.files['data_file']
 
             data = data_file.read()
-            upload_status = backend.upload(data, destination_blob)
+            upload_status = backend.upload(data, destination_blob,
+                                           current_user.get_id())
 
-            return render_template('upload_result.html',
-                                   upload_status=upload_status)
+            return render_template('result.html',
+                                   upload_status=upload_status,
+                                   page_title=destination_blob,
+                                   name=current_user.name)
 
         return render_template('upload.html')
 

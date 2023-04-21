@@ -7,6 +7,12 @@
 {% block content %}
 <form action="", method="post">
     {{ form.hidden_tag() }}
+    {% if err %}
+    <font color="Red">  
+    {{err}}
+    </font>
+    <br>
+    {% endif %} 
     <p>{{form.username.label}}<br>
     {{form.username(size=32)}}<br>
     </p>
