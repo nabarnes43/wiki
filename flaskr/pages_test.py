@@ -234,7 +234,7 @@ def test_bookmark(client, monkeypatch):
         return bookmarks
 
     def mock_get_all_page_names(self):
-        return []
+        return ['test']
 
     monkeypatch.setattr(Backend, 'bookmark', mock_bookmark)
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
@@ -249,7 +249,6 @@ def test_bookmark(client, monkeypatch):
                            username='Dimitripl5',
                            password='testing123',
                        ))
-    resp = client.get('/pages/test')
     resp = client.get('/bookmark/False/test/Dimitripl5/None')
 
     #Ensuring bookmark was successful
