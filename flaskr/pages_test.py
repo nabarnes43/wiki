@@ -279,6 +279,10 @@ def test_view_bookmarks(client, monkeypatch):
     '''
 
     #mocking
+
+    def mock_get_id(self):
+        return 'Dimitripl5'
+
     def mock_get_bookmarks(self, name, existing_pages):
         return ['Test Page', 'Hello World']
 
@@ -288,6 +292,7 @@ def test_view_bookmarks(client, monkeypatch):
     def mock_sign_in(self, username, password):
         return 'Sign In Successful'
 
+    monkeypatch.setattr(User, 'get_id', mock_get_id)
     monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
     monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
@@ -313,6 +318,9 @@ def test_remove_bookmark(client, monkeypatch):
     '''
 
     #mocking
+    def mock_get_id(self):
+        return 'Dimitripl5'
+
     def mock_get_bookmarks(self, name, existing_pages):
         bookmarks = ['Test Page', 'Hello World', 'Sucks']
         for bookmark in bookmarks:
@@ -332,6 +340,7 @@ def test_remove_bookmark(client, monkeypatch):
     def mock_check_page_author(self, page_title):
         return None
 
+    monkeypatch.setattr(User, 'get_id', mock_get_id)
     monkeypatch.setattr(Backend, 'check_page_author', mock_check_page_author)
     monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
     monkeypatch.setattr(Backend, 'sign_in', mock_sign_in)
