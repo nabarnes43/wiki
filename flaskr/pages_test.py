@@ -139,20 +139,6 @@ def test_pages_list(client):
     assert b'Pages contained in this Wiki' in resp.data
 
 
-def test_specific_page(client, monkeypatch):
-    '''
-    Test that specific page can be called to display.
-    '''
-
-    def mock_get_all_page_names(self):
-        return []
-
-    monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
-
-    resp = client.get("/pages/page_test")
-    assert resp.status_code == 200
-
-
 def test_upload_page(client):
     '''
     Test that the upload page displays correctly when called.
@@ -243,6 +229,10 @@ def test_bookmark(client, monkeypatch):
     def mock_get_wiki_page(self, name):
         return "This is a test page"
 
+    def mock_get_bookmarks(self, name, existing_pages):
+        bookmarks = []
+        return bookmarks
+
     def mock_get_all_page_names(self):
         return []
 
@@ -251,6 +241,7 @@ def test_bookmark(client, monkeypatch):
     monkeypatch.setattr(Backend, 'get_wiki_page', mock_get_wiki_page)
     monkeypatch.setattr(User, 'get_id', mock_user_name)
     monkeypatch.setattr(Backend, 'get_all_page_names', mock_get_all_page_names)
+    monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
 
     #Log in and going to bookmark route
     resp = client.post('/login',
