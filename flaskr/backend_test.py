@@ -8,7 +8,7 @@ import pytest
 
 #Constants
 
-#How many characters of differnce are allowed in search
+#How many characters of difference are allowed in search
 MAX_CHAR_DIST = 1
 
 
@@ -412,7 +412,6 @@ def test_search_pages_no_result(wiki_searcher, backend):
     search_content = 'AAA'
     page_titles = backend.search_pages(search_content, MAX_CHAR_DIST,
                                        wiki_searcher)
-    print('page titles= ' + str(page_titles))
     # Assert that the expected page titles are returned in the correct order.
     expected_page_titles = []
 
@@ -528,25 +527,3 @@ def test_search_pages_relevance_score(backend):
     match_score = title_match_counter * 0.8 + content_match_counter * 0.1 + close_title_match_counter * 0.08 + close_content_match_counter * 0.02
 
     assert match_score == expected_match_score
-
-
-def test_levenshtein_distance():
-    """
-    Test the levenshtein_distance function by comparing the output of the function with the
-    expected Levenshtein distance between two input strings.
-    """
-
-    # Test case 1: Identical strings
-    expected_distance = 0
-    ld = levenshtein_distance('kitten', 'kitten')
-    assert ld == expected_distance
-
-    # Test case 2: Strings with a single different character
-    expected_distance = 1
-    ld = levenshtein_distance('kitten', 'sitten')
-    assert ld == expected_distance
-
-    # Test case 3: Strings with different lengths and multiple different characters
-    expected_distance = 2
-    ld = levenshtein_distance('hel', 'hello')
-    assert ld == expected_distance

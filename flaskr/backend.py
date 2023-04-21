@@ -180,7 +180,6 @@ class Backend:
             return []
 
         search_words = search_content.lower().split()
-        print("search words " + str(search_words))
 
         search_results = []
 
@@ -193,7 +192,6 @@ class Backend:
             close_title_match_counter = 0
             close_content_match_counter = 0
             title_words = page_title.lower().split()
-            print("title words" + str(title_words))
             page_content = wiki_searcher.get_wiki_page(page_title)
             page_words = page_content.lower().split()
 
@@ -201,41 +199,23 @@ class Backend:
 
                 for title_word in title_words:
                     if search_word == title_word:
-                        print("search word: " + search_word + " title word: " +
-                              title_word)
                         title_match_counter += 1
                     elif levenshtein_distance(search_word,
                                               title_word) <= max_distance:
-                        print("close match: search word: " + search_word +
-                              " page word: " + title_word)
                         close_title_match_counter += 1
 
                 for page_word in page_words:
 
                     if search_word == page_word:
-                        print("match: search word: " + search_word +
-                              " page word: " + page_word)
                         content_match_counter += 1
                     elif levenshtein_distance(search_word,
                                               page_word) <= max_distance:
-                        print("close match: search word: " + search_word +
-                              " page word: " + page_word)
                         close_content_match_counter += 1
 
-            print("title_match_counter: " + str(title_match_counter) +
-                  " content_match_counter: " + str(content_match_counter) +
-                  " close_title_match_counter: " +
-                  str(close_title_match_counter) +
-                  " close_content_match_counter: " +
-                  str(close_content_match_counter))
             match_score = title_match_counter * 0.8 + content_match_counter * 0.1 + close_title_match_counter * 0.08 + close_content_match_counter * 0.02
-            print(page_title + " match score: " + str(match_score))
 
             if match_score > 0:
                 search_results.append((page_title, match_score))
-
-            print("")
-            print("")
 
         # Sort search_results by match score
         search_results.sort(key=lambda x: x[1], reverse=True)

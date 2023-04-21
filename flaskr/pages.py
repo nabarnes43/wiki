@@ -11,7 +11,7 @@ from base64 import b64encode
 
 #Constants
 
-#How many characters of differnce are allowed in search
+#How many characters of difference are allowed in search
 MAX_CHAR_DIST = 1
 
 
@@ -73,7 +73,6 @@ def make_endpoints(app, login_manager):
             The rendered about page with headshot images of the team members.
         """
         backend = Backend()
-        print(f"backend.get_image = {backend.get_image}")  # Add this line
         nasir_img = b64encode(
             backend.get_image("Nasir.Barnes.Headshot.JPG")).decode("utf-8")
         elei_img = b64encode(
