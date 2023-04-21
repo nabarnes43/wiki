@@ -486,6 +486,8 @@ def test_remove_bookmark_unsuccessful(blob, bucket, storage_client, backend):
 
     #Ensuring error is returned
     assert result == 'Error'
+
+
 def test_check_page_author_exists(blob, bucket, storage_client, backend):
     """
     Test that the author name of a blob that exists and has an author metadata is correctly returned.

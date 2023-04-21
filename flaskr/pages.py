@@ -129,6 +129,7 @@ def make_endpoints(app, login_manager, backend):
         '''
         backend = Backend()
         all_pages = backend.get_all_page_names()
+
         if current_user.is_authenticated:
             return render_template('pages.html',
                                    page_titles=all_pages,
@@ -207,6 +208,59 @@ def make_endpoints(app, login_manager, backend):
 
         return render_template('upload.html', name=current_user.name)
 
+    @app.route("/edit/<title>", methods=['GET'])
+    def make_edit(title):
+        '''
+        Renders the edit page where form is displayed to enable users make their edit to a page. 
+        '''
+        backend = Backend()
+        content = backend.get_wiki_page(title)
+        return render_template('edit.html',
+                               page_title=title,
+                               content=content,
+                               name=current_user.name)
+
+    @app.route("/save_edit/<page_title>", methods=['POST'])
+    def save_edit(page_title):
+        '''
+        Renders the result page where the result of the users edit is displayed.
+        '''
+        backend = Backend()
+        content = str(request.form['content'])
+        upload_status = backend.upload(content, page_title, current_user.name,
+                                       True)
+
+        return render_template('result.html',
+                               upload_status=upload_status,
+                               edit=True,
+                               name=current_user.name,
+                               page_title=page_title)
+
+    @app.route("/delete/<page_title>", methods=['GET'])
+    def delete_page(page_title):
+        backend = Backend()
+        deleted = backend.delete_page(page_title)
+        return render_template('delete.html',
+                               page_title=page_title,
+                               name=current_user.name,
+                               deleted=deleted)
+
+    @app.route("/report/<page_title>", methods=['GET'])
+    def report(page_title):
+        return render_template('report.html',
+                               page_title=page_title,
+                               name=current_user.name)
+
+    @app.route("/save_report/<page_title>", methods=['POST'])
+    def save_report(page_title):
+        backend = Backend()
+        message = str(request.form['report'])
+        report_result = backend.report(page_title, message)
+        return render_template('result.html',
+                               report=True,
+                               upload_status=report_result,
+                               name=current_user.name)
+
     @app.route("/bookmark/<isAuthor>/<page_title>/<name>/<author>",
                methods=['GET'])
     def bookmark(isAuthor, page_title, name, author):
@@ -281,56 +335,3 @@ def make_endpoints(app, login_manager, backend):
                                author=author,
                                bookmarked=False,
                                result='Bookmark deleted!')
-
-    @app.route("/edit/<title>", methods=['GET'])
-    def make_edit(title):
-        '''
-        Renders the edit page where form is displayed to enable users make their edit to a page. 
-        '''
-        backend = Backend()
-        content = backend.get_wiki_page(title)
-        return render_template('edit.html',
-                               page_title=title,
-                               content=content,
-                               name=current_user.name)
-
-    @app.route("/save_edit/<page_title>", methods=['POST'])
-    def save_edit(page_title):
-        '''
-        Renders the result page where the result of the users edit is displayed.
-        '''
-        backend = Backend()
-        content = str(request.form['content'])
-        upload_status = backend.upload(content, page_title, current_user.name,
-                                       True)
-
-        return render_template('result.html',
-                               upload_status=upload_status,
-                               edit=True,
-                               name=current_user.name,
-                               page_title=page_title)
-
-    @app.route("/delete/<page_title>", methods=['GET'])
-    def delete_page(page_title):
-        backend = Backend()
-        deleted = backend.delete_page(page_title)
-        return render_template('delete.html',
-                               page_title=page_title,
-                               name=current_user.name,
-                               deleted=deleted)
-
-    @app.route("/report/<page_title>", methods=['GET'])
-    def report(page_title):
-        return render_template('report.html',
-                               page_title=page_title,
-                               name=current_user.name)
-
-    @app.route("/save_report/<page_title>", methods=['POST'])
-    def save_report(page_title):
-        backend = Backend()
-        message = str(request.form['report'])
-        report_result = backend.report(page_title, message)
-        return render_template('result.html',
-                               report=True,
-                               upload_status=report_result,
-                               name=current_user.name)
