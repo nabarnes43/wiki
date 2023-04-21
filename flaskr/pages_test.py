@@ -1,7 +1,7 @@
 from flaskr import create_app
 from .backend import Backend
+from unittest.mock import patch
 from .user import User
-
 import pytest
 import io
 
@@ -128,6 +128,23 @@ def test_create_account_exception(client, monkeypatch):
 
     assert response.status_code == 200
     assert b'Account creation failed: Test exception' in response.data
+
+
+@patch("flaskr.backend.Backend.get_wiki_page",
+       return_value=b"sample page content")
+@patch("flaskr.backend.Backend.check_page_author", return_value=b"fake author")
+@patch("flaskr.user.User.get_id", return_value=b'Dimitripl5')
+@patch('flaskr.backend.Backend.get_all_page_names', return_value=['page_test'])
+@patch('flaskr.backend.Backend.get_bookmarks', return_value=[])
+def test_specific_page(mock_get_wiki_page, mock_check_page_author, mock_get_id,
+                       mock_get_all_page_names, mock_get_bookmarks, client):
+    '''
+    Test that specific page can be called to display.
+    '''
+    resp = client.get("/pages/page_test")
+    assert resp.status_code == 200
+    assert b'page_test' in resp.data
+    assert b'fake author' in resp.data
 
 
 def test_pages_list(client):

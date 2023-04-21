@@ -132,8 +132,6 @@ def make_endpoints(app, login_manager, backend):
         '''
         displays the details of the specific wiki page selected.
         '''
-        backend = Backend()
-
         page = backend.get_wiki_page(page_title)
         author = backend.check_page_author(page_title)
         if current_user.is_authenticated:
