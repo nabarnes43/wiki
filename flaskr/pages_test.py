@@ -340,6 +340,10 @@ def test_remove_bookmark(client, monkeypatch):
     def mock_check_page_author(self, page_title):
         return None
 
+    def mock_get_wiki_page(self, title):
+        return 'this is test text'
+
+    monkeypatch.setattr(Backend, 'get_wiki_page', mock_get_wiki_page)
     monkeypatch.setattr(User, 'get_id', mock_get_id)
     monkeypatch.setattr(Backend, 'check_page_author', mock_check_page_author)
     monkeypatch.setattr(Backend, 'get_bookmarks', mock_get_bookmarks)
