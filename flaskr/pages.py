@@ -103,13 +103,15 @@ def make_endpoints(app, login_manager, backend):
         """
 
         if request.method != 'POST':
-            return "Please go back and use the form!"
+            error = "Please go back and use the form!"
+            return render_template("signup.html", err=error)
 
         username = str(request.form['Username'])
         password = str(request.form['Password'])
 
         if username == '' or password == '':
-            return "Please enter a username and password."
+            error = "Please enter a username and password."
+            return render_template("signup.html", err=error)
 
         try:
             backend.sign_up(username, password)
@@ -167,7 +169,8 @@ def make_endpoints(app, login_manager, backend):
                                        page_titles=[],
                                        num_results=-1,
                                        search_content=search_content,
-                                       err=err)
+                                       err=err,
+                                       name=current_user.get_id())
 
             all_pages = backend.search_pages(search_content, MAX_CHAR_DIST)
 
@@ -176,7 +179,8 @@ def make_endpoints(app, login_manager, backend):
             return render_template('search.html',
                                    page_titles=all_pages,
                                    num_results=num_results,
-                                   search_content=search_content)
+                                   search_content=search_content,
+                                   name=current_user.get_id())
 
         else:
             return render_template('search.html', name=current_user.get_id())
@@ -300,7 +304,7 @@ def make_endpoints(app, login_manager, backend):
         current_user.bookmarks = all_bookmarks
         if not all_bookmarks:
             return render_template('bookmark.html',
-                                   empty="No bookmarks added",
+                                   result="No bookmarks added",
                                    name=current_user.get_id())
 
         return render_template('bookmark.html',

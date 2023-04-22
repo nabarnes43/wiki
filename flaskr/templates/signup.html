@@ -1,15 +1,32 @@
 {% extends "main.html" %}
 
 {% block page_name %}
-<h1>Sign Up</h1>
-{% endblock %}
 
+{% endblock %}
 {% block content %}
-    <form method="post" action="/createaccount">
-        <input type="text" name= "Username" placeholder="Enter a username"/>
-        <input type="text" name="Password" placeholder="Enter a password"/>
-        <input type="submit" value="Signup"/>
-    </form></br>
-
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css" />
+    <title>Sign Up Form</title>
+</head>
+<body>
+    <div class="formContainer">
+            <h2 class="formHeader">Sign Up!</h2>
+            <div class="formContentContainer">
+                <form method="post" action="/createaccount">
+                    {% if err %}
+                    <div class="formError">
+                        {{err}} 
+                    </div>
+                    {% endif %} 
+                    <input type="text" class = "formInput" name= "Username" placeholder="Enter a username"/>
+                    <input type="password" class = "formInput" name="Password" placeholder="Enter a password"/>
+                    <input type="submit" class = "submitButton" value="Sign Up"/>
+                </form>
+            </div>
+    </div>
+</body>
+</html>
 {% endblock %}
-

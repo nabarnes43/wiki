@@ -54,10 +54,10 @@ def test_signup_page(client):
     """
     resp = client.get('/signup')
     assert resp.status_code == 200
-    assert b'<h1>Sign Up</h1>' in resp.data
-    assert b'<input type="text" name= "Username" placeholder="Enter a username"/>' in resp.data
-    assert b'<input type="text" name="Password" placeholder="Enter a password"/>' in resp.data
-    assert b'<input type="submit" value="Signup"/>' in resp.data
+    assert b'<h2 class="formHeader">Sign Up!</h2>' in resp.data
+    assert b'<input type="text" class = "formInput" name= "Username" placeholder="Enter a username"/>' in resp.data
+    assert b'<input type="password" class = "formInput" name="Password" placeholder="Enter a password"/>' in resp.data
+    assert b'<input type="submit" class = "submitButton" value="Sign Up"/>' in resp.data
 
 
 def test_create_account_succesful_page(client, monkeypatch):
@@ -179,7 +179,7 @@ def test_upload_page(mock_upload, mock_logged_in, client):
 def test_login_page(client):
     resp = client.get('/login')
     assert resp.status_code == 200
-    assert b'<h1>Sign In</h1>' in resp.data
+    assert b'<h2 class="formHeader">Sign In!</h2>' in resp.data
     assert b'Username' in resp.data
     assert b'Password' in resp.data
     assert b'value="Submit"' in resp.data

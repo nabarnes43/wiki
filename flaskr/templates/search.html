@@ -8,17 +8,15 @@
 {% block content %}
 
 <form action="/search" method="POST">
-    <label for="name">Search:</label>
     <input type="text" id="name" name="name">
     <button type="submit">Search</button>
 </form>
 
 
 
-<ul>
     {% for title in page_titles %}
-    <li><a href = "/pages/{{title}}">{{title}}</a></li>
+    <menu><a href = "/pages/{{title}}"> &#x2022 {{title}}</a></menu>
     {% endfor %}
     {{page}}
-</ul>
+
 {% endblock %}

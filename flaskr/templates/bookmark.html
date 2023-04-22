@@ -5,14 +5,12 @@
 {% endblock %}
 
 {% block content %}
-<ul>
-    {% if empty %}
-    <a> {{empty}} </a>
+
+    {% if result %}
+    <a> {{result}} </a>
     {% endif %}
     {% for title in page_titles %}
-    <li><a href = "/pages/{{title}}">{{title}} 
-    <br>
+    <menu><a href = "/pages/{{title}}"> &#x2022 {{title}}</a></menu>
     {% endfor %}
-    {{page}}
-</ul>
+
 {% endblock %}

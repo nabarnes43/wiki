@@ -1,24 +1,37 @@
 {% extends "main.html" %}
 
 {% block page_name %}
-<h1>Sign In</h1>
-{% endblock %}
 
+{% endblock %}
 {% block content %}
-<form action="", method="post">
-    {{ form.hidden_tag() }}
-    {% if err %}
-    <font color="Red">  
-    {{err}}
-    </font>
-    <br>
-    {% endif %} 
-    <p>{{form.username.label}}<br>
-    {{form.username(size=32)}}<br>
-    </p>
-    <p>{{form.password.label}}<br>
-    {{form.password(size=32)}}<br>
-    </p>
-    <p>{{ form.submit() }}</p>
-</form>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/style.css" />
+    <title>Sign In Form</title>
+</head>
+<body>
+    <div class="formContainer">
+            <h2 class="formHeader">Sign In!</h2>
+            <div class="formContentContainer">
+                <form action="", method="post">
+                    {{ form.hidden_tag() }}
+                    {% if err %}
+                    <div class="formError">
+                        {{err}} 
+                    </div>
+                    {% endif %} 
+                    <p>
+                    {{form.username(class_= "formInput", placeHolder = "Username")}}
+                    </p>
+                    <p>
+                    {{form.password(class_="formInput", placeHolder = "Password")}}
+                    </p>
+                    <p>{{ form.submit(class_="submitButton") }}</p>
+                    </form>
+            </div>
+    </div>
+</body>
+</html>
 {% endblock %}

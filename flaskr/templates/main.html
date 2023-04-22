@@ -1,49 +1,75 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <style>
+        ul {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #333;
+        }
 
-    <a href="/">Home</a>
+        li {
+        float: left;
+        }
 
-    <a href = "/pages">Pages</a>
+        li a {
+        display: block;
+        color: white;
+        text-align: center;
+        padding: 14px 16px;
+        text-decoration: none;
+        }
 
-    <a href = "/about">About</a>
+        li a:hover:not(.active) {
+        background-color: #111;
+        }
+        .active {
+        background-color: #04AA6D;
+        }
+        </style>
+        <ul>
+            <li><a href="/">Home</a></li>
 
-    <a href = "/search">Search</a>
+            <li><a href = "/pages">Pages</a></li>
 
-    |
+            <li><a href = "/about">About</a></li>
 
-    {% if current_user.is_anonymous %}
-    <a href="/signup">Sign Up</a>
-    <a href="/login">Log In</a>
+            <li><a href = "/search">Search</a></li>
 
-    {% else %}
-    <a>{{name}}</a>
-    |
-    <a href="/upload">Upload</a>
-    <a href="/bookmarks">Bookmarks</a>
-    <a href="/logout">Log Out</a>  
-    {% endif %} 
+            {% if current_user.is_anonymous %}
+            <li><a href="/signup">Sign Up</a></li>
+            <li><a href="/login">Log In</a></li>
 
-<head>
-    <title>People To Know In Computer Science</title>
-    
-    {% block page_name %}
-    <h1>People To Know In Computer Science</h1>
-    <div>       
-        Welcome {{name}} to the People to Know in Computer Science Wiki!</br></br>
+            {% else %}
+            <li><a>{{name}}</a></li>
+            <li><a href="/upload">Upload</a></li>
+            <li><a href="/bookmarks">Bookmarks</a></li>
+            <li><a href="/logout">Log Out</a></li>
+            {% endif %} 
+        </ul>
+        <br>
+        <title>People To Know In Computer Science</title>
+        
+        {% block page_name %}
+        <h1>People To Know In Computer Science</h1>
+        <div>       
+            Welcome {{name}} to the People to Know in Computer Science Wiki!</br></br>
 
-        This wiki is dedicated to providing information and insight into the lives and works of the most influential and notable people in the field of computer science. From pioneers of computer programming and artificial intelligence to modern-day innovators in cybersecurity and machine learning, this wiki seeks to showcase the incredible contributions made by these individuals to the world of computer science.
-        </br></br>
-        Whether you're a student, professional, or just someone with a general interest in computer science, this wiki is the perfect resource for learning about the people who have helped shape the field into what it is today. We hope that you find our wiki informative, educational, and enjoyable to explore.
-    </div>
-    </br>
-    {% endblock %}
+            This wiki is dedicated to providing information and insight into the lives and works of the most influential and notable people in the field of computer science. From pioneers of computer programming and artificial intelligence to modern-day innovators in cybersecurity and machine learning, this wiki seeks to showcase the incredible contributions made by these individuals to the world of computer science.
+            </br></br>
+            Whether you're a student, professional, or just someone with a general interest in computer science, this wiki is the perfect resource for learning about the people who have helped shape the field into what it is today. We hope that you find our wiki informative, educational, and enjoyable to explore.
+        </div>
+        </br>
+        {% endblock %}
 </head>  
 
 <body>
     {% block content %}
-    
+    <p style="text-align:center;"><img src="https://lh3.googleusercontent.com/pw/AJFCJaVSQYhUFPdKnlYtWvQjJi3irvw_IhcXEaGdKHlrG4WAHUDrpwl7HPZGWw4Lrwso5C-i8EResgR9TMwgwjcPXPVDGmPPglgpcvy4Ph8iZcWvVOyJbU0=w2400" width = 400 height = 300></p>
+</html>
     {% endblock %}
 
 </body>
 
-</html>
