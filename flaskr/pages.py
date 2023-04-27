@@ -160,6 +160,14 @@ def make_endpoints(app, login_manager, backend):
 
     @app.route("/search", methods=['GET', 'POST'])
     def search():
+        """Handle the search page GET and POST requests.
+
+        Returns:
+            The rendered HTML template with search results or an error message.
+        """
+
+        backend = Backend()
+
         if request.method == 'POST':
             search_content = str(request.form['name'])
 
@@ -169,8 +177,7 @@ def make_endpoints(app, login_manager, backend):
                                        page_titles=[],
                                        num_results=-1,
                                        search_content=search_content,
-                                       err=err,
-                                       name=current_user.get_id())
+                                       err=err)
 
             all_pages = backend.search_pages(search_content, MAX_CHAR_DIST)
 
@@ -179,11 +186,14 @@ def make_endpoints(app, login_manager, backend):
             return render_template('search.html',
                                    page_titles=all_pages,
                                    num_results=num_results,
-                                   search_content=search_content,
-                                   name=current_user.get_id())
+                                   search_content=search_content)
 
         else:
-            return render_template('search.html', name=current_user.get_id())
+            return render_template('search.html',
+                                   page_titles=[],
+                                   num_results=-1,
+                                   search_content="")
+
 
     @app.route("/upload", methods=['GET', 'POST'])
     def uploads():
